@@ -1,7 +1,10 @@
-package com.makethings.communication.session;
+package com.makethings.communication.session.service;
+
 
 public class DefaultServiceSession implements ServiceSession {
 
+    private String id;
+    
     private final ServiceSessionDefinition sessionDef;
 
     public DefaultServiceSession(ServiceSessionDefinition sessionDef) {
@@ -10,6 +13,14 @@ public class DefaultServiceSession implements ServiceSession {
 
     public String getRequstQueueName() {
         return sessionDef.getRequestQueueName();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
 }
