@@ -2,17 +2,22 @@ package com.makethings.communication.session.service;
 
 import org.springframework.beans.factory.annotation.Required;
 
+import com.makethings.communication.queue.QueueServiceCredentials;
+import com.makethings.communication.queue.QueueServiceCredentialsProvider;
 import com.makethings.communication.session.ApplicationSession;
+import com.makethings.communication.session.ApplicationSessionDefinition;
 import com.makethings.communication.session.ApplicationSessionFactory;
 import com.makethings.communication.session.SessionIdProvider;
 
 public class DefaultServiceSessionFactory implements ApplicationSessionFactory {
 
     private SessionIdProvider sessionIdProvider;
-    
-    public ApplicationSession createSession(ServiceSessionDefinition sessionDef) {
-        DefaultServiceSession session = new DefaultServiceSession(sessionDef);
+    private QueueServiceCredentialsProvider<? extends QueueServiceCredentials> queueServiceCredentialsProvider;
+
+    public ApplicationSession createSession(ApplicationSessionDefinition sessionDef) {
+        DefaultServiceSession session = new DefaultServiceSession((ServiceSessionDefinition) sessionDef);
         session.setId(sessionIdProvider.getSessionId());
+        session.setQueueServiceCredentials(queueServiceCredentialsProvider.getCredentials());
         return session;
     }
 
@@ -23,6 +28,16 @@ public class DefaultServiceSessionFactory implements ApplicationSessionFactory {
     @Required
     public void setSessionIdProvider(SessionIdProvider sessionIdProvider) {
         this.sessionIdProvider = sessionIdProvider;
+    }
+
+    public QueueServiceCredentialsProvider<? extends QueueServiceCredentials> getQueueServiceCredentialsProvider() {
+        return queueServiceCredentialsProvider;
+    }
+
+    @Required
+    public void setQueueServiceCredentialsProvider(
+            QueueServiceCredentialsProvider<? extends QueueServiceCredentials> queueServiceCredentialsProvider) {
+        this.queueServiceCredentialsProvider = queueServiceCredentialsProvider;
     }
 
 }
