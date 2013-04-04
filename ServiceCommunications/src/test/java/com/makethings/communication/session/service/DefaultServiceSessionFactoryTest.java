@@ -79,7 +79,7 @@ public class DefaultServiceSessionFactoryTest {
     }
 
     private void givenServiceSessionDefinition() {
-        serviceSessionDefinition.setRequestQueueName(SERVICE_REQ_QUEUE);
+        //serviceSessionDefinition.setRequestQueueName(SERVICE_REQ_QUEUE);
     }
 
     private ApplicationSession whenCreateNewSession(ServiceSessionDefinition sessionDef) {

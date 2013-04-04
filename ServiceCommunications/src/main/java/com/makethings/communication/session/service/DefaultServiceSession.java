@@ -1,18 +1,18 @@
 package com.makethings.communication.session.service;
 
+import com.makethings.communication.queue.ServiceRequestQueueName;
 
 public class DefaultServiceSession implements ServiceSession {
 
     private String id;
-    
-    private final ServiceSessionDefinition sessionDef;
+    private final ServiceRequestQueueName requestQueueName;
 
     public DefaultServiceSession(ServiceSessionDefinition sessionDef) {
-        this.sessionDef = sessionDef;
+        requestQueueName = sessionDef.getRequestQueueName();
     }
 
     public String getRequstQueueName() {
-        return sessionDef.getRequestQueueName();
+        return requestQueueName.getName();
     }
 
     public String getId() {

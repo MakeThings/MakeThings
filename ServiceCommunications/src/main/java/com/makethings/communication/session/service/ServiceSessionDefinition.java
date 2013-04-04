@@ -1,18 +1,21 @@
 package com.makethings.communication.session.service;
 
+import org.springframework.beans.factory.annotation.Required;
+
+import com.makethings.communication.queue.ServiceRequestQueueName;
 import com.makethings.communication.session.ApplicationSessionDefinition;
 import com.makethings.communication.session.ApplicationSessionFactory;
-import com.makethings.communication.session.SessionIdProvider;
 
 public abstract class ServiceSessionDefinition implements ApplicationSessionDefinition {
 
-    private String requestQueueName;
+    private ServiceRequestQueueName requestQueueName;
 
-    public String getRequestQueueName() {
+    public ServiceRequestQueueName getRequestQueueName() {
         return requestQueueName;
     }
 
-    public void setRequestQueueName(String requestQueueName) {
+    @Required
+    public void setRequestQueueName(ServiceRequestQueueName requestQueueName) {
         this.requestQueueName = requestQueueName;
     }
 

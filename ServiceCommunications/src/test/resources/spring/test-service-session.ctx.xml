@@ -6,6 +6,11 @@
 
 	<bean id="testServiceSessionDefinition" class="com.makethings.communication.session.service.ServiceSessionDefinition" scope="prototype">
 		<lookup-method name="getSessionFactory" bean="serviceSessionFactory"/>
+		<property name="requestQueueName" ref="testServiceQueueName"/>
+	</bean>
+	
+	<bean id="testServiceQueueName" class="com.makethings.communication.queue.SimpleServiceRequestQueueName">
+		<constructor-arg name="name" value="ServiceReqQueue"/>
 	</bean>
 
 	<bean id="serviceSessionFactory" class="com.makethings.communication.session.service.DefaultServiceSessionFactory" >
