@@ -6,9 +6,11 @@ public class DefaultServiceSession implements ServiceSession {
 
     private String id;
     private final ServiceRequestQueueName requestQueueName;
+    private final ServiceName serviceName;
 
     public DefaultServiceSession(ServiceSessionDefinition sessionDef) {
         requestQueueName = sessionDef.getRequestQueueName();
+        serviceName = sessionDef.getServiceName();
     }
 
     public String getRequstQueueName() {
@@ -21,6 +23,10 @@ public class DefaultServiceSession implements ServiceSession {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getServiceName() {
+        return serviceName.getName();
     }
 
 }

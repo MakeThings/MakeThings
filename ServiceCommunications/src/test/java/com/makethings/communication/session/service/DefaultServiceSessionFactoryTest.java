@@ -63,7 +63,20 @@ public class DefaultServiceSessionFactoryTest {
 
         ServiceSession serviceSession = thenServiceSessionIsCreated(session);
         thenSessionIdIs(serviceSession, "1111-2222");
+    }
+    
+    @Test
+    public void givenServiceNameInDefinitionTheNameIsAvailableInTheSession() {
+        givenServiceSessionDefinition();
 
+        ApplicationSession session = whenCreateNewSession(serviceSessionDefinition);
+
+        ServiceSession serviceSession = thenServiceSessionIsCreated(session);
+        thenServiceNameIs(serviceSession, SERVICE_REQ_QUEUE);
+    }
+
+    private void thenServiceNameIs(ServiceSession serviceSession, String serviceReqQueue) {
+        assertThat(serviceSession.getServiceName(), is("TestService"));
     }
 
     private void thenSessionIdIs(ApplicationSession session, String expectedId) {

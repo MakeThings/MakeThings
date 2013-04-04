@@ -9,6 +9,8 @@ import com.makethings.communication.session.ApplicationSessionFactory;
 public abstract class ServiceSessionDefinition implements ApplicationSessionDefinition {
 
     private ServiceRequestQueueName requestQueueName;
+    private ServiceName serviceName;
+    
 
     public ServiceRequestQueueName getRequestQueueName() {
         return requestQueueName;
@@ -17,6 +19,15 @@ public abstract class ServiceSessionDefinition implements ApplicationSessionDefi
     @Required
     public void setRequestQueueName(ServiceRequestQueueName requestQueueName) {
         this.requestQueueName = requestQueueName;
+    }
+
+    public ServiceName getServiceName() {
+        return serviceName;
+    }
+
+    @Required
+    public void setServiceName(ServiceName serviceName) {
+        this.serviceName = serviceName;
     }
 
     public abstract ApplicationSessionFactory getSessionFactory();

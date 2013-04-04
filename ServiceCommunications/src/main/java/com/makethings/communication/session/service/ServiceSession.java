@@ -6,4 +6,6 @@ public interface ServiceSession extends ApplicationSession {
 
     String getRequstQueueName();
 
+    String getServiceName();
+
 }
