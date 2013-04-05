@@ -96,32 +96,6 @@ public class DefaultServiceSessionFactoryTest {
         assertThat(cred, is(credentials));
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
     private void thenServiceNameIs(ServiceSession serviceSession, String serviceReqQueue) {
         assertThat(serviceSession.getServiceName(), is("TestService"));
     }

@@ -9,3 +9,4 @@ target
 .settings
 .classpath
 .springBeans
+aws_my.properties

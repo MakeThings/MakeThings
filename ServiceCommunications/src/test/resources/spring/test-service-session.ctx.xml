@@ -23,7 +23,7 @@
 		<property name="queueServiceCredentialsProvider" ref="mockCredentialsProvider" />
 	</bean>
 	
-	<mockito:mock id="mockSessionIdProvider" class="com.makethings.communication.session.SessionIdProvider" />
+	<mockito:mock id="mockSessionIdProvider" class="com.makethings.communication.amazon.SessionIdProvider" />
 
 	<mockito:mock id="mockCredentialsProvider" class="com.makethings.communication.queue.QueueServiceCredentialsProvider" />
 
