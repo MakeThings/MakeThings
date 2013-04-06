@@ -23,7 +23,7 @@ import com.makethings.communication.session.ApplicationSession;
 import com.makethings.communication.session.SessionIdProvider;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:/spring/test-service-session.ctx.xml")
+@ContextConfiguration(locations = "classpath:/spring/test-application-session.ctx.xml")
 public class DefaultServiceSessionFactoryTest {
 
     private static final String SERVICE_REQ_QUEUE = "ServiceReqQueue";
