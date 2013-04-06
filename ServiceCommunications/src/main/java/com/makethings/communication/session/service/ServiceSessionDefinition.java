@@ -10,7 +10,6 @@ public abstract class ServiceSessionDefinition implements ApplicationSessionDefi
 
     private ServiceRequestQueueName requestQueueName;
     private ServiceName serviceName;
-    
 
     public ServiceRequestQueueName getRequestQueueName() {
         return requestQueueName;
@@ -31,5 +30,10 @@ public abstract class ServiceSessionDefinition implements ApplicationSessionDefi
     }
 
     public abstract ApplicationSessionFactory getSessionFactory();
+
+    @Override
+    public String toString() {
+        return "ServiceSessionDefinition [requestQueueName=" + requestQueueName + ", serviceName=" + serviceName + "]";
+    }
 
 }

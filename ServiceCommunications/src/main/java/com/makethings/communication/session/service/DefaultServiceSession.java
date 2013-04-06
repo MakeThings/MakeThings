@@ -38,8 +38,11 @@ public class DefaultServiceSession implements ServiceSession {
 
     public void setQueueServiceCredentials(QueueServiceCredentials credentials) {
         this.queueServiceCredentials = credentials;
-        
     }
 
+    @Override
+    public String toString() {
+        return "DefaultServiceSession [id=" + id + ", requestQueueName=" + requestQueueName + ", serviceName=" + serviceName + "]";
+    }
   
 }
