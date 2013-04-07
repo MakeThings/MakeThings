@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.amazonaws.auth.PropertiesCredentials;
@@ -14,6 +15,7 @@ public class AmazonSTSCredentialsProviderIntegrationTest {
     private AmazonSTSCredentialsProvider provider;
 
     @Test
+    @Ignore
     public void givenAWSCredentialsThenTemporaryOneShouldBeGenerated() throws IOException {
         givenWeHaveCredentationsProvider();
 
