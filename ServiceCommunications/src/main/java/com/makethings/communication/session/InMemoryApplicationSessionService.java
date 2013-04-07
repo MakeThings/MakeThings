@@ -30,16 +30,28 @@ public class InMemoryApplicationSessionService implements ApplicationSessionServ
     }
 
     public ApplicationSession getSessionById(String sessionId) {
-        
+
         LOG.debug("Looking application session by id: {}", sessionId);
-        
+
         ApplicationSession session = sessions.get(sessionId);
-        
+
         if (session == null) {
             LOG.debug("Session with id: {} not found", sessionId);
             throw new SessionNotFoundException("Session with id: " + sessionId + " not found", sessionId);
         }
-        
+
         return session;
+    }
+
+    @Override
+    public void deleteSessionById(String sessionId) {
+        LOG.debug("Deleteting application session by id: {}", sessionId);
+
+        ApplicationSession session = sessions.get(sessionId);
+        // Do some de-activation here
+
+        sessions.remove(sessionId);
+
+        LOG.info("Session with id: {} has been deleted", sessionId);
     }
 }

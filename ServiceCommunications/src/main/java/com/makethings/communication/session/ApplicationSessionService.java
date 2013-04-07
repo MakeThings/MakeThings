@@ -6,4 +6,6 @@ public interface ApplicationSessionService {
 
     ApplicationSession createNewSession(ApplicationSessionDefinition definition);
 
+    void deleteSessionById(String sessionId);
+
 }

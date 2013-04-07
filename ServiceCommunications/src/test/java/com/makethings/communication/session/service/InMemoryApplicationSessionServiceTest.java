@@ -26,8 +26,6 @@ public class InMemoryApplicationSessionServiceTest {
 
     private static final String SESSION_ID = "12345";
 
-    private static final String WRONG_SESSION_ID = "qqqqq";
-
     @Autowired
     private SessionIdProvider mockSessionIdProvider;
 
@@ -66,7 +64,7 @@ public class InMemoryApplicationSessionServiceTest {
     public void givenWrongIdWhenGettingSessionThenExceptionShouldBeThrown() {
         expectThatSessionNotFoundExWillBeThrown();
         
-        whenRetrieveSessionbyId(WRONG_SESSION_ID);
+        whenRetrieveSessionbyId(SESSION_ID);
     }
 
     @Test 
@@ -84,15 +82,16 @@ public class InMemoryApplicationSessionServiceTest {
 
     private void expectThatSessionNotFoundExWillBeThrown() {
         sessionNotFoundException.expect(SessionNotFoundException.class);
-        sessionNotFoundException.expectMessage(WRONG_SESSION_ID);
+        sessionNotFoundException.expectMessage(SESSION_ID);
     }
     
     private void thenThereIsNoSessionWithId(String sessionId) {
-        
+        expectThatSessionNotFoundExWillBeThrown();
+        service.getSessionById(sessionId);
     }
 
     private void whenDeleteSessionById(String sessionId) {
-        
+        service.deleteSessionById(sessionId);
     }
 
     private void thenTheSessionCorrespondsToExistingOne(ApplicationSession session, ApplicationSession existingSession) {
