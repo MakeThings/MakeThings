@@ -37,6 +37,9 @@
 						<goals>
 							<goal>test</goal>
 						</goals>
+						<configuration>
+							<redirectTestOutputToFile>true</redirectTestOutputToFile>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
