@@ -6,6 +6,8 @@ import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -25,8 +27,9 @@ public class AmazonSTSCredentialsProviderIntegrationTest {
     }
 
     private void thenCredentialsAreGenerated(AmazonServiceCredentials credentials) {
-        assertThat(credentials.getAccessKeyId(), notNullValue());
-        assertThat(credentials.getSecretAccessKey(), notNullValue());
+        assertThat(credentials.getAwsCredentials(), notNullValue());
+        assertThat(credentials.getAwsCredentials().getAWSAccessKeyId(), notNullValue());
+        assertThat(credentials.getAwsCredentials().getAWSSecretKey(), notNullValue());
     }
 
     private AmazonServiceCredentials whenGettingCredentials() {

@@ -4,6 +4,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.mockito.org/spring/mockito classpath:/spring/mockito.xsd">
 
+	<import resource="classpath:/spring/mock-amazon-service-factory.ctx.xml" />
+
 	<bean id="applicationSessionService" class="com.makethings.communication.session.InMemoryApplicationSessionService">
 	</bean>
 

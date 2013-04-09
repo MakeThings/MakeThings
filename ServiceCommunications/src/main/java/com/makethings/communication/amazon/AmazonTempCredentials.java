@@ -1,20 +1,18 @@
 package com.makethings.communication.amazon;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.STSSessionCredentialsProvider;
 
 public class AmazonTempCredentials implements AmazonServiceCredentials {
 
-    private final AWSCredentials credentials;
+    private final STSSessionCredentialsProvider provider;
 
-    public AmazonTempCredentials(AWSCredentials credentials) {
-        this.credentials = credentials;
+    public AmazonTempCredentials(STSSessionCredentialsProvider provider) {
+        this.provider = provider;
     }
 
-    public String getAccessKeyId() {
-        return credentials.getAWSAccessKeyId();
-    }
-
-    public String getSecretAccessKey() {
-        return credentials.getAWSSecretKey();
+    @Override
+    public AWSCredentials getAwsCredentials() {
+        return provider.getCredentials();
     }
 }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="ideaServiceSessionDefinition" class="com.makethings.communication.session.service.ServiceSessionDefinition" scope="prototype">
+		<lookup-method name="getSessionFactory" bean="serviceSessionFactory"/>
+		<property name="requestQueueName" ref="indeServiceRequeustQueueName"/>
+		<property name="serviceName" ref="ideaServiceName"/>
+	</bean>
+
+	<bean id="ideaServiceName" class="com.makethings.communication.session.service.SimpleServiceName">
+		<constructor-arg name="name" value="ideaService"/>
+	</bean>
+
+	<bean id="indeServiceRequeustQueueName" class="com.makethings.communication.queue.SimpleServiceRequestQueueName">
+		<constructor-arg name="name" value="idea_service_request"/>
+	</bean>
+	
+	<bean id="serviceSessionFactory" class="com.makethings.communication.session.service.DefaultServiceSessionFactory" >
+		<property name="sessionIdProvider" ref="serviceSessionIdProvider" /> 
+		<property name="queueServiceCredentialsProvider" ref="queueServiceCredentialsProvider" />
+	</bean>
+	
+	<bean id="queueServiceCredentialsProvider" class="com.makethings.communication.amazon.AmazonSTSCredentialsProvider">
+	
+	</bean>
+
+	<bean id="serviceSessionIdProvider" class="com.makethings.communication.session.UUIDSessionIdProvider" />
+
+</beans>
