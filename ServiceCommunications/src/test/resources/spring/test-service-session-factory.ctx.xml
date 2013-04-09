@@ -7,7 +7,7 @@
 	<bean id="serviceSessionFactory"
 		class="com.makethings.communication.session.service.DefaultServiceSessionFactory">
 		<property name="sessionIdProvider" ref="sessionIdProvider" />
-		<property name="queueServiceCredentialsProvider" ref="credentialsProvider" />
+		<property name="queueServiceCredentialsProvider" ref="queueServiceCredentialsProvider" />
 	</bean>
 
 </beans>

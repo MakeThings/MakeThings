@@ -8,5 +8,7 @@
 		<property name="awsCredentials" ref="awsCredentials" />
 		<property name="amazonServiceFactory" ref="amazonServiceFactory" />
 	</bean>
+	
+	<alias name="amazonTemporaryCredentialsProvider" alias="queueServiceCredentialsProvider"/>
 
 </beans>

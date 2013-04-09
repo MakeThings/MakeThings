@@ -6,11 +6,16 @@
 
 	<import resource="classpath:/spring/test-service-session-def.ctx.xml" />
 	<import resource="classpath:/spring/test-service-session-factory.ctx.xml" />
+	<import resource="classpath:/spring/test-app-session-service.ctx.xml" />
+	<import resource="classpath:/spring/test-amazon-sts.cxt.xml" />
 
-	<mockito:mock id="queueServiceCredentialsProvider"
-		class="com.makethings.communication.queue.QueueServiceCredentialsProvider" />
+	<bean id="amazonServiceFactory"
+		class="com.makethings.communication.amazon.DefaultAmazonServiceFactoty" />
 
-	<mockito:mock id="sessionIdProvider"
-		class="com.makethings.communication.session.SessionIdProvider" />
+	<bean id="awsCredentials" class="com.amazonaws.auth.PropertiesCredentials">
+		<constructor-arg name="inputStream" value="classpath:/aws_my.properties" />
+	</bean>
+	
+	<bean id="sessionIdProvider" class="com.makethings.communication.session.UUIDSessionIdProvider" />
 
 </beans>
