@@ -21,7 +21,7 @@ import com.makethings.communication.session.SessionIdProvider;
 import com.makethings.communication.session.SessionNotFoundException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:/spring/test-application-session.ctx.xml")
+@ContextConfiguration(locations = "classpath:/spring/InMemoryApplicationSessionServiceTest.xml")
 public class InMemoryApplicationSessionServiceTest {
 
     private static final String SESSION_ID = "12345";

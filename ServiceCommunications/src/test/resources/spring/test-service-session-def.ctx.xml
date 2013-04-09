@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mockito="http://www.mockito.org/spring/mockito"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.mockito.org/spring/mockito classpath:/spring/mockito.xsd">
+
+	<bean id="testServiceSessionDefinition"
+		class="com.makethings.communication.session.service.ServiceSessionDefinition"
+		scope="prototype">
+		<lookup-method name="getSessionFactory" bean="serviceSessionFactory" />
+		<property name="requestQueueName" ref="testServiceQueueName" />
+		<property name="serviceName" ref="testServiceName" />
+	</bean>
+
+	<bean id="testServiceName"
+		class="com.makethings.communication.session.service.SimpleServiceName">
+		<constructor-arg name="name" value="TestService" />
+	</bean>
+
+	<bean id="testServiceQueueName"
+		class="com.makethings.communication.queue.SimpleServiceRequestQueueName">
+		<constructor-arg name="name" value="ServiceReqQueue" />
+	</bean>
+
+</beans>

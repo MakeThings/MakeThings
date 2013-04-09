@@ -3,10 +3,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mockito="http://www.mockito.org/spring/mockito"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.mockito.org/spring/mockito classpath:/spring/mockito.xsd">
-	
-	<bean id="amazonTemporaryCredentialsProvider" class="com.makethings.communication.amazon.AmazonSTSCredentialsProvider">
-		<property name="awsCredentials" ref="awsCredentials" />
-		<property name="amazonServiceFactory" ref="amazonServiceFactory" />
-	</bean>
+
+	<import resource="classpath:/spring/test-service-session-def.ctx.xml" />
+	<import resource="classpath:/spring/test-service-session-factory.ctx.xml" />
+
+
+	<mockito:mock id="credentialsProvider"
+		class="com.makethings.communication.queue.QueueServiceCredentialsProvider" />
+
+	<mockito:mock id="sessionIdProvider"
+		class="com.makethings.communication.session.SessionIdProvider" />
+
 
 </beans>

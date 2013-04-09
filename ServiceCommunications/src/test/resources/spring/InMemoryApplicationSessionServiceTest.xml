@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mockito="http://www.mockito.org/spring/mockito"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.mockito.org/spring/mockito classpath:/spring/mockito.xsd">
+
+	<import resource="classpath:/spring/test-service-session-def.ctx.xml" />
+	<import resource="classpath:/spring/test-service-session-factory.ctx.xml" />
+	<import resource="classpath:/spring/test-app-session-service.ctx.xml" />
+
+	<mockito:mock id="credentialsProvider"
+		class="com.makethings.communication.queue.QueueServiceCredentialsProvider" />
+
+	<mockito:mock id="sessionIdProvider"
+		class="com.makethings.communication.session.SessionIdProvider" />
+
+
+</beans>

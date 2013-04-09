@@ -13,7 +13,7 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.STSSessionCredentialsProvider;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:/spring/test-amazon-sts.cxt.xml")
+@ContextConfiguration(locations = "classpath:/spring/AmazonSTSCredentialsProviderTest.xml")
 public class AmazonSTSCredentialsProviderTest {
 
     @Autowired
