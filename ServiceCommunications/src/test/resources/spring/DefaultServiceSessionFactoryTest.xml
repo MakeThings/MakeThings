@@ -7,12 +7,10 @@
 	<import resource="classpath:/spring/test-service-session-def.ctx.xml" />
 	<import resource="classpath:/spring/test-service-session-factory.ctx.xml" />
 
-
 	<mockito:mock id="credentialsProvider"
 		class="com.makethings.communication.queue.QueueServiceCredentialsProvider" />
 
 	<mockito:mock id="sessionIdProvider"
 		class="com.makethings.communication.session.SessionIdProvider" />
-
 
 </beans>
