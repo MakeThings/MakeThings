@@ -7,10 +7,15 @@
 	<bean id="amazonServiceFactory"
 		class="com.makethings.communication.amazon.MockAmazonServiceFactory">
 		<property name="stsSessionCredentialsProvider" ref="STSSessionCredentialsProvider" />
+		<property name="amazonSqs" ref="amazonSqs" />
 	</bean>
-
-	<mockito:mock id="STSSessionCredentialsProvider"
-		class="com.amazonaws.auth.STSSessionCredentialsProvider" />
-
+	
+	<bean id="amazonSqs" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg index="0" value="com.amazonaws.services.sqs.AmazonSQS"></constructor-arg>
+	</bean>
+	
+	<bean id="STSSessionCredentialsProvider" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg index="0" value="com.amazonaws.auth.STSSessionCredentialsProvider"></constructor-arg>
+	</bean>
 
 </beans>

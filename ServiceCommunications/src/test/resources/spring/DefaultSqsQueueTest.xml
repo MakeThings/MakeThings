@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mockito="http://www.mockito.org/spring/mockito"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.mockito.org/spring/mockito classpath:/spring/mockito.xsd">
+
+	<import resource="classpath:/spring/mock-amazon-service-factory.ctx.xml" />
+
+	<mockito:mock id="amazonTempCredentials" class="com.amazonaws.auth.AWSCredentials" />
+
+	<bean id="sqsQueue" class="com.makethings.communication.rpc.sqs.DefaultSqsQueue">
+		<property name="serviceFactoty" ref="amazonServiceFactory" />
+	</bean>
+</beans>
