@@ -6,7 +6,9 @@ import static org.junit.Assert.assertThat;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -15,12 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
+import com.makethings.communication.rpc.QueueException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/DefaultSqsQueueTest.xml")
@@ -37,6 +41,9 @@ public class DefaultSqsQueueTest {
 
     @Autowired
     private AmazonSQS sqsClient;
+    
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     private SendMessageRequest messageRequest;
     private SendMessageResult sendResult;
@@ -75,6 +82,25 @@ public class DefaultSqsQueueTest {
         whenReceive();
 
         thenReceiveResultWasReceived();
+    }
+    
+    @Test
+    public void givenAmazonExeptionWhenReceiveThenQueueExeptionShouldBeThrown() {
+        givenQueue();
+        givenReceiveMessageRequest();
+        givenSqsClientWhenExceptionOccurs();
+        expectQueueException();
+        
+        whenReceive();
+
+    }
+
+    private void expectQueueException() {
+        expectedException.expect(QueueException.class);
+    }
+
+    private void givenSqsClientWhenExceptionOccurs() {
+        Mockito.when(sqsClient.receiveMessage(receiveMessageRequest)).thenThrow(new AmazonServiceException("Some Error"));
     }
 
     private void thenReceiveResultWasReceived() {

@@ -6,7 +6,7 @@ import com.amazonaws.services.sqs.AmazonSQS;
 
 public interface AmazonServiceFactoty {
 
-    STSSessionCredentialsProvider createStsSessionCredentialsProvider(AWSCredentials awsCredentials);
-    
-    AmazonSQS createAmazonSqs(AWSCredentials awsCredentials);
+    STSSessionCredentialsProvider createStsSessionCredentialsProvider(AWSCredentials awsCredentials) throws AmazonServiceFactoryException;
+
+    AmazonSQS createAmazonSqs(AWSCredentials awsCredentials) throws AmazonServiceFactoryException;
 }

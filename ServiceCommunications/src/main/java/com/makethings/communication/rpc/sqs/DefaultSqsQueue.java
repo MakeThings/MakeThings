@@ -9,6 +9,7 @@ import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.makethings.communication.amazon.AmazonServiceFactoty;
+import com.makethings.communication.rpc.QueueException;
 
 public class DefaultSqsQueue implements SqsQueue {
 
@@ -22,15 +23,25 @@ public class DefaultSqsQueue implements SqsQueue {
     }
 
     @Override
-    public SendMessageResult sendMessage(SendMessageRequest messageRequest) {
+    public SendMessageResult sendMessage(SendMessageRequest messageRequest) throws QueueException {
         AmazonSQS sqsClient = getSqsClient();
-        return sqsClient.sendMessage(messageRequest);
+        try {
+            return sqsClient.sendMessage(messageRequest);
+        }
+        catch (RuntimeException e) {
+            throw new QueueException("Error when send message tho queue" + messageRequest.getQueueUrl(), e);
+        }
     }
-    
+
     @Override
-    public ReceiveMessageResult receiveMessage(ReceiveMessageRequest receiveMessageRequest) {
+    public ReceiveMessageResult receiveMessage(ReceiveMessageRequest receiveMessageRequest) throws QueueException {
         AmazonSQS sqsClient = getSqsClient();
-        return sqsClient.receiveMessage(receiveMessageRequest);
+        try {
+            return sqsClient.receiveMessage(receiveMessageRequest);
+        }
+        catch (RuntimeException e) {
+            throw new QueueException("Error when receive message from queue" + receiveMessageRequest.getQueueUrl(), e);
+        }
     }
 
     private AmazonSQS getSqsClient() {
@@ -48,7 +59,5 @@ public class DefaultSqsQueue implements SqsQueue {
     public void setServiceFactoty(AmazonServiceFactoty serviceFactoty) {
         this.serviceFactory = serviceFactoty;
     }
-
-   
 
 }

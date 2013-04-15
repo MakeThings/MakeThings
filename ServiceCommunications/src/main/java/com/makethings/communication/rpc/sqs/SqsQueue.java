@@ -6,13 +6,14 @@ import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.makethings.communication.rpc.Queue;
+import com.makethings.communication.rpc.QueueException;
 
 public interface SqsQueue extends Queue {
 
     void setAwsCredentials(AWSCredentials credentials);
 
-    SendMessageResult sendMessage(SendMessageRequest messageRequest);
+    SendMessageResult sendMessage(SendMessageRequest messageRequest) throws QueueException;
 
-    ReceiveMessageResult receiveMessage(ReceiveMessageRequest receiveMessageRequest);
+    ReceiveMessageResult receiveMessage(ReceiveMessageRequest receiveMessageRequest) throws QueueException;
     
 }
