@@ -1,17 +1,24 @@
 package com.makethings.communication.rpc.sqs;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
+import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 
@@ -34,6 +41,9 @@ public class DefaultSqsQueueTest {
     private SendMessageRequest messageRequest;
     private SendMessageResult sendResult;
     private SendMessageResult expectedSendResult;
+    private ReceiveMessageRequest receiveMessageRequest;
+    private ReceiveMessageResult receiveMessageResult;
+    private ReceiveMessageResult expectedReceiveMessageResult;
 
     @Test
     public void givenMessageRequestWhenSendThenResultShouldBeReturned() {
@@ -56,6 +66,30 @@ public class DefaultSqsQueueTest {
         thenSqsClientWasCalled();
     }
 
+    @Test
+    public void givenReceiveMessageRequestWhenReceiveThenResultShouldBeReturned() {
+        givenQueue();
+        givenReceiveMessageRequest();
+        givenSqsClient();
+
+        whenReceive();
+
+        thenReceiveResultWasReceived();
+    }
+
+    private void thenReceiveResultWasReceived() {
+        assertThat(receiveMessageResult, notNullValue());
+        assertThat(receiveMessageResult, is(expectedReceiveMessageResult));
+    }
+
+    private void whenReceive() {
+        receiveMessageResult = sqsQueue.receiveMessage(receiveMessageRequest);
+    }
+
+    private void givenReceiveMessageRequest() {
+        receiveMessageRequest = new ReceiveMessageRequest().withQueueUrl(QUEUE_NAME);
+    }
+
     private void thenSqsClientWasCalled() {
         Mockito.verify(sqsClient).sendMessage(Matchers.same(messageRequest));
     }
@@ -63,6 +97,8 @@ public class DefaultSqsQueueTest {
     private void givenSqsClient() {
         expectedSendResult = new SendMessageResult();
         Mockito.when(sqsClient.sendMessage(messageRequest)).thenReturn(expectedSendResult);
+        expectedReceiveMessageResult = new ReceiveMessageResult();
+        Mockito.when(sqsClient.receiveMessage(receiveMessageRequest)).thenReturn(expectedReceiveMessageResult);
     }
 
     private void thenSendResultWasCreated() {
