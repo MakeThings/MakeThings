@@ -20,6 +20,7 @@ import com.makethings.communication.queue.QueueServiceCredentials;
 import com.makethings.communication.queue.QueueServiceCredentialsProvider;
 import com.makethings.communication.session.ApplicationSession;
 import com.makethings.communication.session.SessionIdProvider;
+import com.makethings.communication.testsupport.SessionIdProviderMockHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/DefaultServiceSessionFactoryTest.xml")
@@ -33,6 +34,8 @@ public class DefaultServiceSessionFactoryTest {
     @Autowired
     private SessionIdProvider mockSessionIdProvider;
 
+    private SessionIdProviderMockHelper sessionIdProviderMockHelper;
+    
     @Autowired
     private QueueServiceCredentialsProvider<QueueServiceCredentials> credentialsProvider;
   
@@ -42,6 +45,7 @@ public class DefaultServiceSessionFactoryTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        sessionIdProviderMockHelper = new SessionIdProviderMockHelper(mockSessionIdProvider);
     }
 
     @Test
@@ -65,7 +69,7 @@ public class DefaultServiceSessionFactoryTest {
 
     @Test
     public void givenServiceDefinitionWhenCreateSessionThenSessionIdShouldBeGenerated() {
-        givenSessionIdProvider("1111-2222");
+        sessionIdProviderMockHelper.givenSessionIdProvider("1111-2222");
         givenServiceSessionDefinition();
 
         ApplicationSession session = whenCreateNewSession(serviceSessionDefinition);
@@ -101,10 +105,6 @@ public class DefaultServiceSessionFactoryTest {
 
     private void thenSessionIdIs(ApplicationSession session, String expectedId) {
         assertThat(session.getId(), is(expectedId));
-    }
-
-    private void givenSessionIdProvider(String expectedSessionId) {
-        when(mockSessionIdProvider.getSessionId()).thenReturn(expectedSessionId);
     }
 
     private void thenRequestQueueNameIs(ServiceSession session, String queueName) {

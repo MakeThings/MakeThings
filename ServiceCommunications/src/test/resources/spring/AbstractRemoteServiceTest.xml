@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<import resource="classpath:/spring/test-service-session-def.ctx.xml" />
+	<import resource="classpath:/spring/test-service-session-factory.ctx.xml" />
+	<import resource="classpath:/spring/test-app-session-service.ctx.xml" />
+
+	<bean id="queueServiceCredentialsProvider" factory-method="mock"
+		class="org.mockito.Mockito">
+		<constructor-arg index="0"
+			value="com.makethings.communication.queue.QueueServiceCredentialsProvider" />
+	</bean>
+
+	<bean id="sessionIdProvider" factory-method="mock" class="org.mockito.Mockito">
+		<constructor-arg index="0"
+			value="com.makethings.communication.session.SessionIdProvider" />
+	</bean>
+	<bean id="remoteServiceManager"
+		class="com.makethings.communication.rpc.DefaultRemoteServiceManager">
+		<property name="applicationSessionService" ref="applicationSessionService" />
+	</bean>
+
+	<bean id="testRemoteService" class="com.makethings.communication.rpc.TestRemoteService">
+		<property name="sessionDefinition" ref="testServiceSessionDefinition" />
+		<property name="serviceManager" ref="remoteServiceManager"></property>
+	</bean>
+
+</beans>
