@@ -21,12 +21,22 @@ public abstract class AbstractRemoteService implements RemoteService {
     }
 
     private void createSession() {
-        serviceSession = serviceManager.openServiceSession(sessionDefinition);
+        try {
+            serviceSession = serviceManager.openServiceSession(sessionDefinition);
+        }
+        catch (RuntimeException e) {
+            throw new RemoteServiceException("Remote service cannot be inited", e);
+        }
     }
 
     @Override
     public ServiceSession getSession() {
         return serviceSession;
+    }
+
+    @Override
+    public void start() {
+
     }
 
     public ServiceSessionDefinition getSessionDefinition() {

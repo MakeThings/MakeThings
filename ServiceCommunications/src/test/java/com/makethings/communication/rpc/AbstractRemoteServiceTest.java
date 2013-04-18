@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,7 +27,7 @@ import com.makethings.communication.testsupport.SessionIdProviderMockHelper;
 public class AbstractRemoteServiceTest {
     
     @Autowired
-    private AbstractRemoteService service;
+    private RemoteService service;
 
     private SessionIdProviderMockHelper sessionIdProviderMockHelper;
 
@@ -69,11 +70,24 @@ public class AbstractRemoteServiceTest {
         givenExceptionWhenRequestCredentials();
         
         givenServiceInited();
+    }
+    
+    @Test
+    @DirtiesContext
+    @Ignore
+    public void givenServiceWhenStartThenProcessingShouldBeStated() {
+        sessionIdProviderMockHelper.givenSessionIdProvider("1111-2222");
+        givenServiceInited();
         
+        whenServiceStart();
+    }
+
+    private void whenServiceStart() {
+        service.start();
     }
 
     private void givenExceptionWhenRequestCredentials() {
-        Mockito.when(serviceCredentialsProvider).thenThrow(new RuntimeException("qwefqwfe"));
+        Mockito.when(serviceCredentialsProvider.getCredentials()).thenThrow(new RuntimeException("qwefqwfe"));
     }
 
     private void givenServiceInited() {
