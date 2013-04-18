@@ -46,7 +46,7 @@ public class InMemoryApplicationSessionServiceTest {
 
         ServiceSession serviceSession = thenItIsServiceSession(session);
     }
-
+    
     @Test
     @DirtiesContext
     public void givenIdOfExistingSessionThenTheSessionCanBeRetrievedById() {
@@ -77,7 +77,6 @@ public class InMemoryApplicationSessionServiceTest {
         whenDeleteSessionById(SESSION_ID);
         
         thenThereIsNoSessionWithId(SESSION_ID);
-        
     }
 
     private void expectThatSessionNotFoundExWillBeThrown() {

@@ -5,9 +5,12 @@ import static org.junit.Assert.assertThat;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -20,12 +23,15 @@ import com.makethings.communication.testsupport.SessionIdProviderMockHelper;
 public class AbstractRemoteServiceTest {
     
     @Autowired
-    private RemoteService service;
+    private AbstractRemoteService service;
 
     private SessionIdProviderMockHelper sessionIdProviderMockHelper;
 
     @Autowired
     private SessionIdProvider sessionIdProvider;
+    
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     
     @Before
     public void setUp() {
@@ -33,10 +39,25 @@ public class AbstractRemoteServiceTest {
     }
     
     @Test
+    @DirtiesContext
     public void givenServiceDefinitionWhenInitServiceThenSessionShouldBeCreated() {
         sessionIdProviderMockHelper.givenSessionIdProvider("1111-2222");
         whenServiceInit();
         thenSessionIsCreated();
+    }
+    
+    @Test
+    @DirtiesContext
+    public void givenInitedServiceWhenCallInitAgainThenExeptionShouldBeThrown() {
+        expectedException.expect(RemoteServiceException.class);
+        sessionIdProviderMockHelper.givenSessionIdProvider("1111-2222");
+        givenServiceInited();
+        whenServiceInit();
+        
+    }
+
+    private void givenServiceInited() {
+        service.init();
     }
 
     private void whenServiceInit() {

@@ -7,12 +7,23 @@ public abstract class AbstractRemoteService implements RemoteService {
     private ServiceSessionDefinition sessionDefinition;
     private ServiceSession serviceSession;
     private RemoteServiceManager serviceManager;
-    
+    private boolean inited = false;
+
     @Override
     public void init() {
+        if (!inited) {
+            createSession();
+            inited = true;
+        }
+        else {
+            throw new RemoteServiceException("Remote service already inited");
+        }
+    }
+
+    private void createSession() {
         serviceSession = serviceManager.openServiceSession(sessionDefinition);
     }
-    
+
     @Override
     public ServiceSession getSession() {
         return serviceSession;
@@ -33,5 +44,5 @@ public abstract class AbstractRemoteService implements RemoteService {
     public void setServiceManager(RemoteServiceManager serviceManager) {
         this.serviceManager = serviceManager;
     }
-    
+
 }
