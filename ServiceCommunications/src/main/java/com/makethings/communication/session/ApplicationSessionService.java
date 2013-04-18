@@ -4,7 +4,7 @@ public interface ApplicationSessionService {
 
     ApplicationSession getSessionById(String sessionId) throws SessionNotFoundException;
 
-    ApplicationSession createNewSession(ApplicationSessionDefinition definition);
+    ApplicationSession createNewSession(ApplicationSessionDefinition definition) throws CreateSessionException;
 
     void deleteSessionById(String sessionId);
 

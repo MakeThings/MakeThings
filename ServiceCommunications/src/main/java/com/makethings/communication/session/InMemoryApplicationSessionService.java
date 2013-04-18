@@ -20,13 +20,22 @@ public class InMemoryApplicationSessionService implements ApplicationSessionServ
 
         LOG.debug("Creating session for definition: {}", definition);
 
-        ApplicationSessionFactory sessionFactory = definition.getSessionFactory();
-        ApplicationSession session = sessionFactory.createSession(definition);
+        ApplicationSession session = doCreateSesssion(definition);
         sessions.put(session.getId(), session);
 
         LOG.info("Created session: {} for definition: {}", session, definition);
 
         return session;
+    }
+
+    private ApplicationSession doCreateSesssion(ApplicationSessionDefinition definition) {
+        try {
+            ApplicationSessionFactory sessionFactory = definition.getSessionFactory();
+            return sessionFactory.createSession(definition);
+        }
+        catch (RuntimeException ex) {
+            throw new CreateSessionException("Cannot create application session", ex);
+        }
     }
 
     public ApplicationSession getSessionById(String sessionId) {

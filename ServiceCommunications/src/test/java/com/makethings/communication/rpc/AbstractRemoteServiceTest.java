@@ -9,11 +9,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.makethings.communication.queue.QueueServiceCredentials;
+import com.makethings.communication.queue.QueueServiceCredentialsProvider;
 import com.makethings.communication.session.SessionIdProvider;
 import com.makethings.communication.session.service.ServiceSession;
 import com.makethings.communication.testsupport.SessionIdProviderMockHelper;
@@ -29,6 +32,9 @@ public class AbstractRemoteServiceTest {
 
     @Autowired
     private SessionIdProvider sessionIdProvider;
+    
+    @Autowired
+    private QueueServiceCredentialsProvider<QueueServiceCredentials> serviceCredentialsProvider ; 
     
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -53,7 +59,21 @@ public class AbstractRemoteServiceTest {
         sessionIdProviderMockHelper.givenSessionIdProvider("1111-2222");
         givenServiceInited();
         whenServiceInit();
+    }
+    
+    @Test
+    @DirtiesContext
+    public void givenExceptionWhenInitThenRemoteExceptionShouldBeThrown() {
+        expectedException.expect(RemoteServiceException.class);  
+        sessionIdProviderMockHelper.givenSessionIdProvider("1111-2222");
+        givenExceptionWhenRequestCredentials();
         
+        givenServiceInited();
+        
+    }
+
+    private void givenExceptionWhenRequestCredentials() {
+        Mockito.when(serviceCredentialsProvider).thenThrow(new RuntimeException("qwefqwfe"));
     }
 
     private void givenServiceInited() {
