@@ -22,9 +22,19 @@
 		<property name="applicationSessionService" ref="applicationSessionService" />
 	</bean>
 
-	<bean id="testRemoteService" class="com.makethings.communication.rpc.TestRemoteService">
-		<property name="sessionDefinition" ref="testServiceSessionDefinition" />
-		<property name="serviceManager" ref="remoteServiceManager"></property>
+	<bean id="testRemoteService" class="org.mockito.Mockito"
+		factory-method="spy">
+		<constructor-arg>
+			<bean class="com.makethings.communication.rpc.TestRemoteService">
+				<property name="sessionDefinition" ref="testServiceSessionDefinition" />
+				<property name="serviceManager" ref="remoteServiceManager" />
+				<property name="executor" ref="executor" />
+			</bean>
+		</constructor-arg>
+	</bean>
+
+	<bean id="executor" class="org.springframework.core.task.SimpleAsyncTaskExecutor">
+		<property name="daemon" value="false" />
 	</bean>
 
 </beans>

@@ -27,7 +27,9 @@ import com.makethings.communication.testsupport.SessionIdProviderMockHelper;
 public class AbstractRemoteServiceTest {
     
     @Autowired
-    private RemoteService service;
+    private TestRemoteService service;
+
+    private TestRemoteServiceHelper testRemoteServiceHelper;
 
     private SessionIdProviderMockHelper sessionIdProviderMockHelper;
 
@@ -43,6 +45,7 @@ public class AbstractRemoteServiceTest {
     @Before
     public void setUp() {
         sessionIdProviderMockHelper = new SessionIdProviderMockHelper(sessionIdProvider);
+        testRemoteServiceHelper = new TestRemoteServiceHelper(service);
     }
     
     @Test
@@ -74,12 +77,14 @@ public class AbstractRemoteServiceTest {
     
     @Test
     @DirtiesContext
-    @Ignore
     public void givenServiceWhenStartThenProcessingShouldBeStated() {
         sessionIdProviderMockHelper.givenSessionIdProvider("1111-2222");
         givenServiceInited();
+        testRemoteServiceHelper.expextStartProcessing();
         
         whenServiceStart();
+        
+        testRemoteServiceHelper.thenProcessingIsStarted();
     }
 
     private void whenServiceStart() {
@@ -104,6 +109,5 @@ public class AbstractRemoteServiceTest {
         assertThat(session.getId(), CoreMatchers.is("1111-2222"));
         assertThat(session.getRequstQueueName(), CoreMatchers.is("ServiceReqQueue"));
         assertThat(session.getServiceName(), CoreMatchers.is("TestService"));
-        
     }
 }

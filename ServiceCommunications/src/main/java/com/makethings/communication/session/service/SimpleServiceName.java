@@ -12,4 +12,9 @@ public class SimpleServiceName implements ServiceName {
         return name;
     }
 
+    @Override
+    public String toString() {
+        return getName();
+    }
+
 }
