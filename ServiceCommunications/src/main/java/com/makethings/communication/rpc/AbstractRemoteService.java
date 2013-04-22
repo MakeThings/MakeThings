@@ -80,6 +80,14 @@ public abstract class AbstractRemoteService implements RemoteService {
         }
     }
 
+    public void stop() {
+        state = RemoteServiceState.STOPPED;
+    }
+    
+    public RemoteServiceState getState() {
+        return state;
+    }
+
     protected abstract void startProcessing();
 
     public ServiceSessionDefinition getSessionDefinition() {
@@ -105,4 +113,6 @@ public abstract class AbstractRemoteService implements RemoteService {
     public void setExecutor(Executor executor) {
         this.executor = executor;
     }
+
+   
 }

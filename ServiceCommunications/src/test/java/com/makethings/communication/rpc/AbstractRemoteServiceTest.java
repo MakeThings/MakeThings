@@ -3,6 +3,7 @@ package com.makethings.communication.rpc;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -94,7 +95,25 @@ public class AbstractRemoteServiceTest {
         testRemoteServiceHelper.expectRemoteServiceException();
         
         whenServiceStart();
+    }
+    
+    @Test
+    @DirtiesContext
+    public void givenRunningServiceWhenStopMethodCalledThenItShouldChangeStatusToStopped() {
+        sessionIdProviderMockHelper.givenSessionIdProvider("1111-2222");
+        givenServiceStarted();
+
+        whenStopService();
         
+        thenServiceStatusIs(RemoteServiceState.STOPPED);
+    }
+
+    private void thenServiceStatusIs(RemoteServiceState expectedStatus) {
+        Assert.assertThat(service.getState(), CoreMatchers.is(expectedStatus));
+    }
+
+    private void whenStopService() {
+        service.stop();
     }
 
     private void givenServiceStarted() {
