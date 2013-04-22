@@ -3,9 +3,7 @@ package com.makethings.communication.rpc;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -45,7 +43,7 @@ public class AbstractRemoteServiceTest {
     @Before
     public void setUp() {
         sessionIdProviderMockHelper = new SessionIdProviderMockHelper(sessionIdProvider);
-        testRemoteServiceHelper = new TestRemoteServiceHelper(service);
+        testRemoteServiceHelper = new TestRemoteServiceHelper(service, expectedException);
     }
     
     @Test
@@ -59,7 +57,7 @@ public class AbstractRemoteServiceTest {
     @Test
     @DirtiesContext
     public void givenInitedServiceWhenCallInitAgainThenExeptionShouldBeThrown() {
-        expectedException.expect(RemoteServiceException.class);
+        testRemoteServiceHelper.expectRemoteServiceException();
         sessionIdProviderMockHelper.givenSessionIdProvider("1111-2222");
         givenServiceInited();
         whenServiceInit();
@@ -68,7 +66,7 @@ public class AbstractRemoteServiceTest {
     @Test
     @DirtiesContext
     public void givenExceptionWhenInitThenRemoteExceptionShouldBeThrown() {
-        expectedException.expect(RemoteServiceException.class);  
+        testRemoteServiceHelper.expectRemoteServiceException();
         sessionIdProviderMockHelper.givenSessionIdProvider("1111-2222");
         givenExceptionWhenRequestCredentials();
         
@@ -85,6 +83,23 @@ public class AbstractRemoteServiceTest {
         whenServiceStart();
         
         testRemoteServiceHelper.thenProcessingIsStarted();
+    }
+    
+    @Test
+    @DirtiesContext
+    public void givenStartedServiceWhenCallStartMethodAgainThenExceptionIsThrown() {
+        sessionIdProviderMockHelper.givenSessionIdProvider("1111-2222");
+        givenServiceStarted();
+
+        testRemoteServiceHelper.expectRemoteServiceException();
+        
+        whenServiceStart();
+        
+    }
+
+    private void givenServiceStarted() {
+        service.init();
+        service.start();
     }
 
     private void whenServiceStart() {

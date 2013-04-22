@@ -15,30 +15,42 @@ public abstract class AbstractRemoteService implements RemoteService {
     private ServiceSessionDefinition sessionDefinition;
     private ServiceSession serviceSession;
     private RemoteServiceManager serviceManager;
-    private boolean inited = false;
+    private RemoteServiceState state;
     private Executor executor;
+
+    public AbstractRemoteService() {
+        this.state = RemoteServiceState.CREATED;
+    }
 
     @Override
     public void init() {
-        if (!inited) {
+        if (state == RemoteServiceState.CREATED) {
             LOG.info("Initialising remote service: {}", sessionDefinition.getServiceName().getName());
-            
+
+            state = RemoteServiceState.INITIALISING;
+
             createSession();
-            inited = true;
+
+            state = RemoteServiceState.WAITING_TO_STAT;
         }
         else {
-            throw new RemoteServiceException("Remote service already inited");
+            throw new RemoteServiceException("Cannot initialise service: " + getServiceName() + ", expected state: "
+                    + RemoteServiceState.CREATED + ", but actual " + state);
         }
+    }
+
+    private String getServiceName() {
+        return sessionDefinition.getServiceName().getName();
     }
 
     private void createSession() {
         try {
             LOG.info("Creating service session for remote service: {}", sessionDefinition.getServiceName().getName());
-            
+
             serviceSession = serviceManager.openServiceSession(sessionDefinition);
         }
         catch (RuntimeException e) {
-            throw new RemoteServiceException("Remote service cannot be inited", e);
+            throw new RemoteServiceException("Remote service: " + sessionDefinition.getServiceName().getName() + " cannot be inited", e);
         }
     }
 
@@ -49,15 +61,23 @@ public abstract class AbstractRemoteService implements RemoteService {
 
     @Override
     public void start() {
-        LOG.info("Starting remote service: {}", serviceSession.getServiceName());
-        
-        executor.execute(new Runnable() {
+        if (state == RemoteServiceState.WAITING_TO_STAT) {
+            LOG.info("Starting remote service: {}", serviceSession.getServiceName());
 
-            @Override
-            public void run() {
-                startProcessing();
-            }
-        });
+            executor.execute(new Runnable() {
+
+                @Override
+                public void run() {
+                    startProcessing();
+                }
+            });
+
+            state = RemoteServiceState.RUNNING;
+        }
+        else {
+            throw new RemoteServiceException("Cannot start service: " + getServiceName() + ", expected state: "
+                    + RemoteServiceState.WAITING_TO_STAT + ", but actual " + state);
+        }
     }
 
     protected abstract void startProcessing();
