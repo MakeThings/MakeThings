@@ -6,7 +6,7 @@
 
 	<bean id="testServiceSessionDefinition"
 		class="com.makethings.communication.session.service.ServiceSessionDefinition"
-		scope="prototype">
+		scope="singleton">
 		<lookup-method name="getSessionFactory" bean="serviceSessionFactory" />
 		<property name="requestQueueName" ref="testServiceQueueName" />
 		<property name="serviceName" ref="testServiceName" />

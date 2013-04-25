@@ -7,5 +7,5 @@ public interface RemoteService {
     void init() throws RemoteServiceException;
     void start() throws RemoteServiceException;
     void stop();
-    public abstract RemoteServiceState getState();
+    RemoteServiceState getState();
 }

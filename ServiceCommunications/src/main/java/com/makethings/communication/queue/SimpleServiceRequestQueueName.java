@@ -11,4 +11,10 @@ public class SimpleServiceRequestQueueName implements ServiceRequestQueueName {
     public String getName() {
         return name;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }

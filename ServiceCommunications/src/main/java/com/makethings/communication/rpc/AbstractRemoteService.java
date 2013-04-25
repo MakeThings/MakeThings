@@ -1,5 +1,6 @@
 package com.makethings.communication.rpc;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
@@ -14,9 +15,10 @@ public abstract class AbstractRemoteService implements RemoteService {
 
     private ServiceSessionDefinition sessionDefinition;
     private ServiceSession serviceSession;
-    private RemoteServiceManager serviceManager;
     private RemoteServiceState state;
     private Executor executor;
+    private ServiceManager serviceManager;
+    private CountDownLatch processingThreads;
 
     public AbstractRemoteService() {
         this.state = RemoteServiceState.CREATED;
@@ -47,7 +49,7 @@ public abstract class AbstractRemoteService implements RemoteService {
         try {
             LOG.info("Creating service session for remote service: {}", sessionDefinition.getServiceName().getName());
 
-            serviceSession = serviceManager.openServiceSession(sessionDefinition);
+            serviceSession = serviceManager.openServiceSession(getSessionDefinition());
         }
         catch (RuntimeException e) {
             throw new RemoteServiceException("Remote service: " + sessionDefinition.getServiceName().getName() + " cannot be inited", e);
@@ -63,12 +65,14 @@ public abstract class AbstractRemoteService implements RemoteService {
     public void start() {
         if (state == RemoteServiceState.WAITING_TO_STAT) {
             LOG.info("Starting remote service: {}", serviceSession.getServiceName());
-
+            processingThreads = new CountDownLatch(1);
             executor.execute(new Runnable() {
 
                 @Override
                 public void run() {
                     startProcessing();
+                    LOG.info("Stop process thread of service: {}", serviceSession.getServiceName());
+                    processingThreads.countDown();
                 }
             });
 
@@ -81,9 +85,17 @@ public abstract class AbstractRemoteService implements RemoteService {
     }
 
     public void stop() {
+        serviceManager.closeServiceSession(serviceSession.getId());
         state = RemoteServiceState.STOPPED;
+        try {
+            processingThreads.await();
+        }
+        catch (InterruptedException e) {
+            LOG.warn("Awaiting of service stop was interupted: {}", serviceSession.getServiceName());
+        }
+
     }
-    
+
     public RemoteServiceState getState() {
         return state;
     }
@@ -98,14 +110,6 @@ public abstract class AbstractRemoteService implements RemoteService {
         this.sessionDefinition = sessionDefinition;
     }
 
-    public RemoteServiceManager getServiceManager() {
-        return serviceManager;
-    }
-
-    public void setServiceManager(RemoteServiceManager serviceManager) {
-        this.serviceManager = serviceManager;
-    }
-
     public Executor getExecutor() {
         return executor;
     }
@@ -114,5 +118,12 @@ public abstract class AbstractRemoteService implements RemoteService {
         this.executor = executor;
     }
 
-   
+    public ServiceManager getServiceManager() {
+        return serviceManager;
+    }
+
+    public void setServiceManager(ServiceManager serviceManager) {
+        this.serviceManager = serviceManager;
+    }
+
 }
