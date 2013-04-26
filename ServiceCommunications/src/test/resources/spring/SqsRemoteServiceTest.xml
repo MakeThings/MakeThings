@@ -11,19 +11,19 @@
 		<constructor-arg value="com.makethings.communication.rpc.ServiceManager" />
 	</bean>
 
-	<bean id="testRemoteService" class="org.mockito.Mockito"
-		factory-method="spy">
-		<constructor-arg>
-			<bean class="com.makethings.communication.rpc.TestRemoteService">
-				<property name="sessionDefinition" ref="testServiceSessionDefinition" />
-				<property name="executor" ref="executor" />
-				<property name="serviceManager" ref="serviceManager" />
-			</bean>
-		</constructor-arg>
+	<bean id="sqsRemoteService" class="com.makethings.communication.rpc.sqs.SqsRemoteService">
+		<property name="sessionDefinition" ref="testServiceSessionDefinition" />
+		<property name="executor" ref="executor" />
+		<property name="serviceManager" ref="serviceManager" />
+		<property name="queue" ref="sqsQueue" />
 	</bean>
 
 	<bean id="executor" class="org.springframework.core.task.SimpleAsyncTaskExecutor">
 		<property name="daemon" value="false" />
+	</bean>
+	
+	<bean id="sqsQueue" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg value="com.makethings.communication.rpc.sqs.SqsQueue" />
 	</bean>
 
 </beans>

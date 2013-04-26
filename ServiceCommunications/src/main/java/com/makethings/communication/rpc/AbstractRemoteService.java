@@ -32,6 +32,8 @@ public abstract class AbstractRemoteService implements RemoteService {
             state = RemoteServiceState.INITIALISING;
 
             createSession();
+            
+            onInit();
 
             state = RemoteServiceState.WAITING_TO_STAT;
         }
@@ -39,6 +41,10 @@ public abstract class AbstractRemoteService implements RemoteService {
             throw new RemoteServiceException("Cannot initialise service: " + getServiceName() + ", expected state: "
                     + RemoteServiceState.CREATED + ", but actual " + state);
         }
+    }
+
+    protected void onInit() {
+        
     }
 
     private String getServiceName() {
@@ -56,8 +62,7 @@ public abstract class AbstractRemoteService implements RemoteService {
         }
     }
 
-    @Override
-    public ServiceSession getSession() {
+    protected ServiceSession getSession() {
         return serviceSession;
     }
 

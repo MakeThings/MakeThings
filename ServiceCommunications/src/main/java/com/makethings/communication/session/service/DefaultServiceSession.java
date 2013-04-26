@@ -1,7 +1,6 @@
 package com.makethings.communication.session.service;
 
 import com.makethings.communication.queue.QueueServiceCredentials;
-import com.makethings.communication.queue.QueueServiceCredentialsProvider;
 import com.makethings.communication.queue.ServiceRequestQueueName;
 
 public class DefaultServiceSession implements ServiceSession {

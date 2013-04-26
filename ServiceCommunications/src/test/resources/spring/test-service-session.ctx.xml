@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="testServiceSession"
+		class="com.makethings.communication.session.service.DefaultServiceSession">
+		<constructor-arg ref="testServiceSessionDefinition" />
+		<property name="id" value="12345" />
+		<property name="queueServiceCredentials" ref="amazonServiceCredentials" />
+	</bean>
+
+	<bean id="amazonServiceCredentials" class="org.mockito.Mockito"
+		factory-method="mock">
+		<constructor-arg
+			value="com.makethings.communication.amazon.AmazonServiceCredentials"></constructor-arg>
+	</bean>
+
+	<bean id="awsCredentials" class="com.amazonaws.auth.PropertiesCredentials">
+		<constructor-arg name="inputStream" value="classpath:/aws_my.properties" />
+	</bean>
+
+</beans>

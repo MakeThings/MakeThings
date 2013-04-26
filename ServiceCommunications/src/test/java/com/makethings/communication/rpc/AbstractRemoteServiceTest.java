@@ -1,9 +1,5 @@
 package com.makethings.communication.rpc;
 
-import static org.mockito.Mockito.when;
-
-import java.rmi.Remote;
-
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,8 +7,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -39,20 +33,23 @@ public class AbstractRemoteServiceTest {
     @Autowired
     private ServiceSessionDefinition sessionDefinition;
 
+    @Autowired
     private DefaultServiceSession serviceSession;
+
+    private TestServiceManagerHelper testServiceManagerHelper;
 
     @Before
     public void setUp() {
         testRemoteServiceHelper = new TestRemoteServiceHelper(service, expectedException);
-        givenServiceSession();
-        givenServiceManager();
+        testServiceManagerHelper = new TestServiceManagerHelper(serviceManager);
+        testServiceManagerHelper.givenCreatedSessionByDefinition(serviceSession, sessionDefinition);
     }
 
     @Test
     @DirtiesContext
     public void givenServiceDefinitionWhenInitServiceThenSessionShouldBeCreated() {
         whenServiceInit();
-        thenSessionIsCreated();
+        testServiceManagerHelper.thenSessionIsCreatedByDefinition(sessionDefinition);
     }
 
     @Test
@@ -67,7 +64,7 @@ public class AbstractRemoteServiceTest {
     @DirtiesContext
     public void givenExceptionWhenInitThenRemoteExceptionShouldBeThrown() {
         testRemoteServiceHelper.expectRemoteServiceException();
-        givenExceptionWhenOpenSession();
+        testServiceManagerHelper.givenExceptionWhenOpenSession();
 
         givenServiceInited();
     }
@@ -110,11 +107,7 @@ public class AbstractRemoteServiceTest {
 
         whenStopService();
 
-        thenSessionIsClosed();
-    }
-
-    private void thenSessionIsClosed() {
-        Mockito.verify(serviceManager).closeServiceSession(Matchers.eq(serviceSession.getId()));
+        testServiceManagerHelper.thenSessionIsClosed(serviceSession);
     }
 
     private void thenServiceStatusIs(RemoteServiceState expectedStatus) {
@@ -133,11 +126,7 @@ public class AbstractRemoteServiceTest {
     private void whenServiceStart() {
         service.start();
     }
-
-    private void givenExceptionWhenOpenSession() {
-        when(serviceManager.openServiceSession(Matchers.same(sessionDefinition))).thenThrow(new RuntimeException("qwefqwfe"));
-    }
-
+    
     private void givenServiceInited() {
         service.init();
     }
@@ -146,16 +135,4 @@ public class AbstractRemoteServiceTest {
         service.init();
     }
 
-    private void thenSessionIsCreated() {
-        Mockito.verify(serviceManager).openServiceSession(Mockito.same(sessionDefinition));
-    }
-
-    private void givenServiceSession() {
-        serviceSession = new DefaultServiceSession(sessionDefinition);
-        serviceSession.setId("service session id");
-    }
-
-    private void givenServiceManager() {
-        Mockito.when(serviceManager.openServiceSession(Mockito.same(sessionDefinition))).thenReturn(serviceSession);
-    }
 }
