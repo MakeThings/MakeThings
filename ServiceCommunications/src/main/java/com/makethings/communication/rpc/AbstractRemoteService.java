@@ -2,6 +2,7 @@ package com.makethings.communication.rpc;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public abstract class AbstractRemoteService implements RemoteService {
             state = RemoteServiceState.INITIALISING;
 
             createSession();
-            
+
             onInit();
 
             state = RemoteServiceState.WAITING_TO_STAT;
@@ -44,7 +45,7 @@ public abstract class AbstractRemoteService implements RemoteService {
     }
 
     protected void onInit() {
-        
+
     }
 
     private String getServiceName() {
@@ -71,7 +72,7 @@ public abstract class AbstractRemoteService implements RemoteService {
         if (state == RemoteServiceState.WAITING_TO_STAT) {
             LOG.info("Starting remote service: {}", serviceSession.getServiceName());
             processingThreads = new CountDownLatch(1);
-            executor.execute(new Runnable() {
+            Executors.newSingleThreadExecutor().execute(new Runnable() {
 
                 @Override
                 public void run() {
