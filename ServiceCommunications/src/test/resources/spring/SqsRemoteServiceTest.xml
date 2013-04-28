@@ -13,17 +13,23 @@
 
 	<bean id="sqsRemoteService" class="com.makethings.communication.rpc.sqs.SqsRemoteService">
 		<property name="sessionDefinition" ref="testServiceSessionDefinition" />
-		<property name="executor" ref="executor" />
 		<property name="serviceManager" ref="serviceManager" />
 		<property name="queue" ref="sqsQueue" />
+		<property name="jsonRpcHandler" ref="jsonRpcHandler" />
 	</bean>
 
 	<bean id="executor" class="org.springframework.core.task.SimpleAsyncTaskExecutor">
 		<property name="daemon" value="false" />
 	</bean>
-	
+
 	<bean id="sqsQueue" class="org.mockito.Mockito" factory-method="mock">
 		<constructor-arg value="com.makethings.communication.rpc.sqs.SqsQueue" />
+	</bean>
+
+	<bean id="jsonRpcHandler" class="org.mockito.Mockito"
+		factory-method="mock">
+		<constructor-arg
+			value="com.makethings.communication.rpc.json.JsonRpcHandler" />
 	</bean>
 
 </beans>

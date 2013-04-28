@@ -11,10 +11,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
+import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.makethings.communication.amazon.AmazonServiceCredentials;
 import com.makethings.communication.rpc.ServiceManager;
 import com.makethings.communication.rpc.TestServiceManagerHelper;
+import com.makethings.communication.rpc.json.JsonRpcHandler;
+import com.makethings.communication.rpc.json.JsonRpcRequest;
 import com.makethings.communication.session.service.DefaultServiceSession;
 import com.makethings.communication.session.service.ServiceSessionDefinition;
 
@@ -45,19 +49,20 @@ public class SqsRemoteServiceTest {
     @Autowired
     private DefaultServiceSession serviceSession;
 
+    @Autowired
+    private JsonRpcHandler jsonRpcHandler;
+
     @Before
     public void setUp() {
         testServiceManagerHelper = new TestServiceManagerHelper(serviceManager);
         testServiceManagerHelper.givenCreatedSessionByDefinition(serviceSession, sessionDefinition);
 
         givenQueueServiceCredentials();
-
     }
 
     @Test
     @DirtiesContext
     public void givenServiceWhenInitialisedThenQueueServiceCreadentialsIsPopulatedToAQueue() {
-
         whenServiceInit();
 
         thenCreadentialsHasBeenPopulated();
@@ -69,6 +74,30 @@ public class SqsRemoteServiceTest {
         whenServiceStart();
 
         thenRequestToReceiveMessagesIsSent();
+    }
+
+    @Test
+    @DirtiesContext
+    public void givenReceivedJsonRequestWhenProcesstingThenItIsHandled() {
+        givenMessageInAQueue();
+
+        whenServiceStart();
+
+        thenMessageIsDispathedForProcessing();
+    }
+
+    private void thenMessageIsDispathedForProcessing() {
+        JsonRpcRequest req = new JsonRpcRequest().withMessages("Json request...");
+        Mockito.verify(jsonRpcHandler, Mockito.timeout(10 * 1000)).handle(Matchers.eq(req));
+    }
+
+    private void givenMessageInAQueue() {
+        ReceiveMessageResult receiveMessageResult = new ReceiveMessageResult().withMessages(createMessage());
+        Mockito.when(queue.receiveMessage(Matchers.isA(ReceiveMessageRequest.class))).thenReturn(receiveMessageResult);
+    }
+
+    private Message createMessage() {
+        return new Message().withBody("Json request...");
     }
 
     private void thenRequestToReceiveMessagesIsSent() {

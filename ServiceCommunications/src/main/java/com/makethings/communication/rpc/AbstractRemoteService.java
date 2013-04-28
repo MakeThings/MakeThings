@@ -1,7 +1,6 @@
 package com.makethings.communication.rpc;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
@@ -17,7 +16,6 @@ public abstract class AbstractRemoteService implements RemoteService {
     private ServiceSessionDefinition sessionDefinition;
     private ServiceSession serviceSession;
     private RemoteServiceState state;
-    private Executor executor;
     private ServiceManager serviceManager;
     private CountDownLatch processingThreads;
 
@@ -76,7 +74,7 @@ public abstract class AbstractRemoteService implements RemoteService {
 
                 @Override
                 public void run() {
-                    startProcessing();
+                    processing();
                     LOG.info("Stop process thread of service: {}", serviceSession.getServiceName());
                     processingThreads.countDown();
                 }
@@ -106,7 +104,7 @@ public abstract class AbstractRemoteService implements RemoteService {
         return state;
     }
 
-    protected abstract void startProcessing();
+    protected abstract void processing();
 
     public ServiceSessionDefinition getSessionDefinition() {
         return sessionDefinition;
@@ -114,14 +112,6 @@ public abstract class AbstractRemoteService implements RemoteService {
 
     public void setSessionDefinition(ServiceSessionDefinition sessionDefinition) {
         this.sessionDefinition = sessionDefinition;
-    }
-
-    public Executor getExecutor() {
-        return executor;
-    }
-
-    public void setExecutor(Executor executor) {
-        this.executor = executor;
     }
 
     public ServiceManager getServiceManager() {

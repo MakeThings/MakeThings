@@ -16,14 +16,10 @@
 		<constructor-arg>
 			<bean class="com.makethings.communication.rpc.TestRemoteService">
 				<property name="sessionDefinition" ref="testServiceSessionDefinition" />
-				<property name="executor" ref="executor" />
 				<property name="serviceManager" ref="serviceManager" />
 			</bean>
 		</constructor-arg>
 	</bean>
 
-	<bean id="executor" class="org.springframework.core.task.SimpleAsyncTaskExecutor">
-		<property name="daemon" value="false" />
-	</bean>
 
 </beans>

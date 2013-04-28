@@ -14,11 +14,11 @@ public class TestRemoteServiceHelper {
     }
 
     public void expextStartProcessing() {
-        Mockito.doNothing().when(mockService).startProcessing();
+        Mockito.doNothing().when(mockService).processing();
     }
 
     public void thenProcessingIsStarted() {
-        Mockito.verify(mockService, Mockito.timeout(1000)).startProcessing();
+        Mockito.verify(mockService, Mockito.timeout(1000)).processing();
     }
 
     public void expectRemoteServiceException() {
