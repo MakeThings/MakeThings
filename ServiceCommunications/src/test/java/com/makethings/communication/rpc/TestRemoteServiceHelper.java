@@ -3,6 +3,7 @@ package com.makethings.communication.rpc;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
+import com.makethings.commons.exeption.AppRuntimeExeption;
 
 public class TestRemoteServiceHelper {
     private final TestRemoteService mockService;
@@ -23,5 +24,9 @@ public class TestRemoteServiceHelper {
 
     public void expectRemoteServiceException() {
         expectedException.expect(RemoteServiceException.class);
+    }
+
+    public void givenErrorWhenProcessing() {
+        Mockito.doThrow(AppRuntimeExeption.class).when(mockService).processing();
     }
 }

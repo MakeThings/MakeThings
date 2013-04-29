@@ -117,6 +117,26 @@ public class AbstractRemoteServiceTest {
         
         thenServiceStatusIs(RemoteServiceState.STOPPED);
     }
+    
+    @Test
+    @DirtiesContext
+    public void givenExceptionWhileRunningThenServiceChangeStateToError() {
+        testRemoteServiceHelper.givenErrorWhenProcessing();
+        givenServiceInited();
+        
+        whenServiceStart();
+
+        delay();
+        thenServiceStatusIs(RemoteServiceState.ERROR);
+    }
+
+    private void delay() {
+        try {
+            Thread.sleep(1000);
+        }
+        catch (InterruptedException e) {
+        }
+    }
 
     private void thenServiceStatusIs(RemoteServiceState expectedStatus) {
         Assert.assertThat(service.getState(), CoreMatchers.is(expectedStatus));
