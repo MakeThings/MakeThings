@@ -109,6 +109,14 @@ public class AbstractRemoteServiceTest {
 
         testServiceManagerHelper.thenSessionIsClosed(serviceSession);
     }
+    
+    @Test
+    @DirtiesContext
+    public void givenCreatedServiceWhenStopThenItShouldChangeStatusToStopped() {
+        whenStopService();
+        
+        thenServiceStatusIs(RemoteServiceState.STOPPED);
+    }
 
     private void thenServiceStatusIs(RemoteServiceState expectedStatus) {
         Assert.assertThat(service.getState(), CoreMatchers.is(expectedStatus));

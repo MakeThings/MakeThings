@@ -49,12 +49,14 @@ public class SqsRemoteService extends AbstractRemoteService {
 
         request = new ReceiveMessageRequest().withQueueUrl(queueName);
 
-        handleMessages(queue.receiveMessage(request));
+        while (isWorking() && !isStopSignalReceived()) {
+            handleMessages(queue.receiveMessage(request));
+        }
     }
 
     protected void handleMessages(ReceiveMessageResult receivedMessages) {
         List<Message> messages = receivedMessages.getMessages();
-
+        LOG.debug("Recevied messages {}, from {}", receivedMessages, getSession().getRequstQueueName());
         for (Message message : messages) {
             LOG.debug("Handling message {}, received from {}", message, getSession().getRequstQueueName());
             new RequestHandlingTask().withMessage(message).withHandler(jsonRpcHandler).execute(requestProcessingExecutor);

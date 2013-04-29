@@ -1,5 +1,10 @@
 package com.makethings.communication.rpc;
 
+import static com.makethings.communication.rpc.RemoteServiceState.INITIALISING;
+import static com.makethings.communication.rpc.RemoteServiceState.RUNNING;
+import static com.makethings.communication.rpc.RemoteServiceState.STARTING;
+import static com.makethings.communication.rpc.RemoteServiceState.WAITING_TO_STAT;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
@@ -15,12 +20,14 @@ public abstract class AbstractRemoteService implements RemoteService {
 
     private ServiceSessionDefinition sessionDefinition;
     private ServiceSession serviceSession;
-    private RemoteServiceState state;
+    private volatile RemoteServiceState state;
+    private volatile boolean stopSingal;
     private ServiceManager serviceManager;
     private CountDownLatch processingThreads;
 
     public AbstractRemoteService() {
         this.state = RemoteServiceState.CREATED;
+        this.stopSingal = false;  
     }
 
     @Override
@@ -35,6 +42,8 @@ public abstract class AbstractRemoteService implements RemoteService {
             onInit();
 
             state = RemoteServiceState.WAITING_TO_STAT;
+            
+            LOG.info("Remote service: {} has been initialised", getSession().getServiceName());
         }
         else {
             throw new RemoteServiceException("Cannot initialise service: " + getServiceName() + ", expected state: "
@@ -69,38 +78,76 @@ public abstract class AbstractRemoteService implements RemoteService {
     public void start() {
         if (state == RemoteServiceState.WAITING_TO_STAT) {
             LOG.info("Starting remote service: {}", serviceSession.getServiceName());
-            processingThreads = new CountDownLatch(1);
-            Executors.newSingleThreadExecutor().execute(new Runnable() {
 
-                @Override
-                public void run() {
-                    processing();
-                    LOG.info("Stop process thread of service: {}", serviceSession.getServiceName());
-                    processingThreads.countDown();
-                }
-            });
+            state = RemoteServiceState.STARTING;
+
+            doStartService();
 
             state = RemoteServiceState.RUNNING;
+            
+            LOG.info("Remote service: {} is up and running", serviceSession.getServiceName());
         }
         else {
             throw new RemoteServiceException("Cannot start service: " + getServiceName() + ", expected state: "
                     + RemoteServiceState.WAITING_TO_STAT + ", but actual " + state);
         }
     }
+    
+    private void doStartService() {
+        processingThreads = new CountDownLatch(1);
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                processing();
+                LOG.info("Stop process thread of service: {}", serviceSession.getServiceName());
+                processingThreads.countDown();
+            }
+        });
+    }
 
     public void stop() {
-        serviceManager.closeServiceSession(serviceSession.getId());
+        stopSingal = true;
+        if (isStarted()) {
+            if (isWorking()) {
+                doStopService();
+            }
+            doCloseSession();
+        }
         state = RemoteServiceState.STOPPED;
+    }
+
+    private void doCloseSession() {
+        if (serviceSession != null) {
+            serviceManager.closeServiceSession(serviceSession.getId());
+            serviceSession = null;
+        }
+    }
+    
+    private void doStopService() {
         try {
             processingThreads.await();
         }
         catch (InterruptedException e) {
             LOG.warn("Awaiting of service stop was interupted: {}", serviceSession.getServiceName());
         }
+    }
+    
+    /**
+     * Indicates if the service gets initialized or started.
+     */
+    private boolean isStarted() {
+        return getState() == INITIALISING || getState() == RUNNING || getState() == STARTING || getState() == WAITING_TO_STAT;
+    }
 
+    /**
+     * Indicates if the service is running.
+     */
+    protected boolean isWorking() {
+        return getState() == RUNNING || getState() == STARTING;
     }
 
     public RemoteServiceState getState() {
+        LOG.debug("Service State is {}", state);
         return state;
     }
 
@@ -120,6 +167,10 @@ public abstract class AbstractRemoteService implements RemoteService {
 
     public void setServiceManager(ServiceManager serviceManager) {
         this.serviceManager = serviceManager;
+    }
+    
+    protected boolean isStopSignalReceived() {
+        return stopSingal;
     }
 
 }

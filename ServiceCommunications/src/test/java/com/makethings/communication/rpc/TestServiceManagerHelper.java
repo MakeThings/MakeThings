@@ -23,7 +23,7 @@ public class TestServiceManagerHelper {
     }
 
     public void thenSessionIsClosed(ServiceSession serviceSession) {
-        Mockito.verify(serviceManager).closeServiceSession(Matchers.eq(serviceSession.getId()));
+        Mockito.verify(serviceManager, Mockito.timeout(5 * 1000)).closeServiceSession(Matchers.eq(serviceSession.getId()));
     }
     
     public void givenExceptionWhenOpenSession() {

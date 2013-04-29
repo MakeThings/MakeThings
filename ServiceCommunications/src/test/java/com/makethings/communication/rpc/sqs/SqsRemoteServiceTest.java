@@ -1,5 +1,10 @@
 package com.makethings.communication.rpc.sqs;
 
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +30,8 @@ import com.makethings.communication.session.service.ServiceSessionDefinition;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/SqsRemoteServiceTest.xml")
 public class SqsRemoteServiceTest {
+
+    private static final ReceiveMessageResult EMPTY_MESSAGE = new ReceiveMessageResult();
 
     @Autowired
     private SqsQueue queue;
@@ -60,6 +67,11 @@ public class SqsRemoteServiceTest {
         givenQueueServiceCredentials();
     }
 
+    @After
+    public void tearDown() {
+        remoteService.stop();
+    }
+
     @Test
     @DirtiesContext
     public void givenServiceWhenInitialisedThenQueueServiceCreadentialsIsPopulatedToAQueue() {
@@ -71,9 +83,15 @@ public class SqsRemoteServiceTest {
     @Test
     @DirtiesContext
     public void givenServiceWhenStartThenRequestToReceiveMessagesIsSent() {
+        givenNoMessagesInAQueue();
+
         whenServiceStart();
 
         thenRequestToReceiveMessagesIsSent();
+    }
+
+    private void givenNoMessagesInAQueue() {
+        Mockito.when(queue.receiveMessage(Matchers.isA(ReceiveMessageRequest.class))).thenReturn(EMPTY_MESSAGE);
     }
 
     @Test
@@ -86,22 +104,50 @@ public class SqsRemoteServiceTest {
         thenMessageIsDispathedForProcessing();
     }
 
+    @Test
+    @DirtiesContext
+    public void givenMultipleRequestsWhenProcessingThenAllOfThemAreHandled() {
+        givenMessagesInAQueue();
+
+        whenServiceStart();
+
+        thenMessagesAreDispathedForProcessing();
+    }
+
+    private void thenMessagesAreDispathedForProcessing() {
+        verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonRpcRequest().withMessages("One")));
+        verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonRpcRequest().withMessages("Two")));
+        verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonRpcRequest().withMessages("Three")));
+    }
+
+    private void givenMessagesInAQueue() {
+        ReceiveMessageResult receiveMessageResult1 = new ReceiveMessageResult().withMessages(createMessage("One"), createMessage("Two"));
+        ReceiveMessageResult receiveMessageResult2 = new ReceiveMessageResult().withMessages(createMessage("Three"));
+        Mockito.when(queue.receiveMessage(Matchers.isA(ReceiveMessageRequest.class))).thenReturn(receiveMessageResult1)
+                .thenReturn(receiveMessageResult2).thenReturn(EMPTY_MESSAGE);
+    }
+
     private void thenMessageIsDispathedForProcessing() {
         JsonRpcRequest req = new JsonRpcRequest().withMessages("Json request...");
-        Mockito.verify(jsonRpcHandler, Mockito.timeout(10 * 1000)).handle(Matchers.eq(req));
+        Mockito.verify(jsonRpcHandler, Mockito.timeout(5 * 1000)).handle(Matchers.eq(req));
     }
 
     private void givenMessageInAQueue() {
         ReceiveMessageResult receiveMessageResult = new ReceiveMessageResult().withMessages(createMessage());
-        Mockito.when(queue.receiveMessage(Matchers.isA(ReceiveMessageRequest.class))).thenReturn(receiveMessageResult);
+        Mockito.when(queue.receiveMessage(Matchers.isA(ReceiveMessageRequest.class))).thenReturn(receiveMessageResult)
+                .thenReturn(EMPTY_MESSAGE);
     }
 
     private Message createMessage() {
-        return new Message().withBody("Json request...");
+        return createMessage("Json request...");
+    }
+
+    private Message createMessage(String body) {
+        return new Message().withBody(body);
     }
 
     private void thenRequestToReceiveMessagesIsSent() {
-        Mockito.verify(queue, Mockito.timeout(10 * 1000)).receiveMessage(Matchers.isA(ReceiveMessageRequest.class));
+        Mockito.verify(queue, timeout(5 * 1000).atLeast(1)).receiveMessage(Matchers.isA(ReceiveMessageRequest.class));
     }
 
     private void whenServiceStart() {
