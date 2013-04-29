@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
@@ -31,6 +32,7 @@ public class DefaultSqsQueueTest {
 
     private static final String REQUEST = "Request";
     private static final String QUEUE_NAME = "ideaServiceRequestQueue";
+    private static final String RECIPIENT_HANDLER = "rcp_handler";
 
     @Autowired
     private SqsQueue sqsQueue;
@@ -50,6 +52,7 @@ public class DefaultSqsQueueTest {
     private ReceiveMessageRequest receiveMessageRequest;
     private ReceiveMessageResult receiveMessageResult;
     private ReceiveMessageResult expectedReceiveMessageResult;
+    private DeleteMessageRequest withReceiptHandle;
 
     @Test
     public void givenMessageRequestWhenSendThenResultShouldBeReturned() {
@@ -69,7 +72,7 @@ public class DefaultSqsQueueTest {
 
         whenSendMessageRequest();
 
-        thenSqsClientWasCalled();
+        thenSendRequstIsPassedToSqsClient();
     }
 
     @Test
@@ -91,7 +94,28 @@ public class DefaultSqsQueueTest {
         expectQueueException();
         
         whenReceive();
+    }
+    
+    @Test
+    public void givenDeleteMessageRequestWhenDeleteMessageThenItShouldBePassedToSqsClient() {
+        givenQueue();
+        givenDeleteMessageRequest();
+    
+        whenDelete();
+        
+        thenDeleteRequestIsPassedToSqsClient();
+    }
 
+    private void thenDeleteRequestIsPassedToSqsClient() {
+        Mockito.verify(sqsClient).deleteMessage(withReceiptHandle);
+    }
+
+    private void whenDelete() {
+        sqsQueue.deleteMessage(withReceiptHandle);
+    }
+
+    private void givenDeleteMessageRequest() {
+        withReceiptHandle = new DeleteMessageRequest().withQueueUrl(QUEUE_NAME).withReceiptHandle(RECIPIENT_HANDLER);
     }
 
     private void expectQueueException() {
@@ -115,7 +139,7 @@ public class DefaultSqsQueueTest {
         receiveMessageRequest = new ReceiveMessageRequest().withQueueUrl(QUEUE_NAME);
     }
 
-    private void thenSqsClientWasCalled() {
+    private void thenSendRequstIsPassedToSqsClient() {
         Mockito.verify(sqsClient).sendMessage(Matchers.same(messageRequest));
     }
 

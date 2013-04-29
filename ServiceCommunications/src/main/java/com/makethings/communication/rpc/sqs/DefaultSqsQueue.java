@@ -45,6 +45,17 @@ public class DefaultSqsQueue implements SqsQueue {
         }
     }
 
+    @Override
+    public void deleteMessage(DeleteMessageRequest deleteMessageRequest) {
+        AmazonSQS sqsClient = getSqsClient();
+        try {
+            sqsClient.deleteMessage(deleteMessageRequest);
+        }
+        catch (RuntimeException e) {
+            throw new QueueException("Error when delete message from queue" + deleteMessageRequest.getQueueUrl(), e);
+        }
+    }
+
     private AmazonSQS getSqsClient() {
         if (sqsClient == null) {
             sqsClient = serviceFactory.createAmazonSqs(credentials);
@@ -59,11 +70,6 @@ public class DefaultSqsQueue implements SqsQueue {
     @Required
     public void setServiceFactoty(AmazonServiceFactoty serviceFactoty) {
         this.serviceFactory = serviceFactoty;
-    }
-
-    @Override
-    public void deleteMessage(DeleteMessageRequest deleteMessageRequest) {
-        
     }
 
 }
