@@ -130,6 +130,14 @@ public class AbstractRemoteServiceTest {
         thenServiceStatusIs(RemoteServiceState.ERROR);
     }
 
+    @Test
+    @DirtiesContext
+    public void givenRunningServiceThenServiceSessionIsUpdated() {
+        givenServiceStarted();
+        
+        testServiceManagerHelper.thenServiceStartIsReported();
+    }
+
     private void delay() {
         try {
             Thread.sleep(1000);

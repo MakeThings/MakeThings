@@ -30,4 +30,8 @@ public class TestServiceManagerHelper {
         Mockito.when(serviceManager.openServiceSession(Matchers.isA(ServiceSessionDefinition.class))).thenThrow(new RuntimeException("qwefqwfe"));
     }
 
+    public void thenServiceStartIsReported() {
+        Mockito.verify(serviceManager).reportServiceStatus(Matchers.isA(String.class), Matchers.eq(RemoteServiceState.RUNNING));
+    }
+
 }

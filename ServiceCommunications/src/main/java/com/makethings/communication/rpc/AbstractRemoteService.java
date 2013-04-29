@@ -28,7 +28,7 @@ public abstract class AbstractRemoteService implements RemoteService {
     public AbstractRemoteService() {
         this.state = RemoteServiceState.CREATED;
         this.stopSingal = false;
-        
+
     }
 
     @Override
@@ -81,15 +81,15 @@ public abstract class AbstractRemoteService implements RemoteService {
             LOG.info("Starting remote service: {}", serviceSession.getServiceName());
 
             state = RemoteServiceState.STARTING;
-            
+
             processingTask = new ProcessingTask();
             processingTask.start();
-            
-            if (state != RemoteServiceState.ERROR)  {
+
+            if (state != RemoteServiceState.ERROR) {
                 state = RemoteServiceState.RUNNING;
+                serviceManager.reportServiceStatus(getSession().getId(), RemoteServiceState.RUNNING);
                 LOG.info("Remote service: {} is up and running", serviceSession.getServiceName());
             }
-
         }
         else {
             throw new RemoteServiceException("Cannot start service: " + getServiceName() + ", expected state: "
@@ -132,7 +132,7 @@ public abstract class AbstractRemoteService implements RemoteService {
         LOG.debug("Service State is {}", state);
         return state;
     }
-    
+
     protected abstract void processing();
 
     public ServiceSessionDefinition getSessionDefinition() {
@@ -156,10 +156,10 @@ public abstract class AbstractRemoteService implements RemoteService {
     }
 
     private class ProcessingTask implements Runnable {
-        
+
         private RuntimeException error;
         private CountDownLatch processingThread;
-        
+
         @Override
         public void run() {
             try {
@@ -179,7 +179,7 @@ public abstract class AbstractRemoteService implements RemoteService {
         public RuntimeException getError() {
             return error;
         }
-        
+
         public void stop() {
             stopSingal = true;
             try {
@@ -189,7 +189,7 @@ public abstract class AbstractRemoteService implements RemoteService {
                 LOG.warn("Awaiting of service stop was interupted: {}", serviceSession.getServiceName());
             }
         }
-        
+
         public void start() {
             processingThread = new CountDownLatch(1);
             Executors.newSingleThreadExecutor().execute(this);

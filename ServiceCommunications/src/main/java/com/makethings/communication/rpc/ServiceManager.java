@@ -9,4 +9,7 @@ public interface ServiceManager {
     ServiceSession openServiceSession(ServiceSessionDefinition sessionDefinition) throws CreateSessionException;
 
     void closeServiceSession(String sessionId) throws SessionNotFoundException;
+
+    void reportServiceStatus(String sessionId, RemoteServiceState state);
+
 }
