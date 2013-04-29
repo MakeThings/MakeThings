@@ -38,4 +38,8 @@ public class JsonRpcRequest {
         return true;
     }
 
+    public String getClientSessionId() {
+        return "client_session_id";
+    }
+
 }

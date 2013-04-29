@@ -20,17 +20,22 @@ import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.makethings.communication.amazon.AmazonServiceCredentials;
 import com.makethings.communication.rpc.ServiceManager;
 import com.makethings.communication.rpc.TestServiceManagerHelper;
 import com.makethings.communication.rpc.json.JsonRpcHandler;
 import com.makethings.communication.rpc.json.JsonRpcRequest;
+import com.makethings.communication.rpc.json.JsonRpcResponse;
 import com.makethings.communication.session.service.DefaultServiceSession;
 import com.makethings.communication.session.service.ServiceSessionDefinition;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/SqsRemoteServiceTest.xml")
 public class SqsRemoteServiceTest {
+
+    private static final String JSON_REQUEST = "Json request...";
+    private static final String JSON_RESPONSE = "Json response...";
 
     private static final ReceiveMessageResult EMPTY_MESSAGE = new ReceiveMessageResult();
 
@@ -101,6 +106,7 @@ public class SqsRemoteServiceTest {
     @DirtiesContext
     public void givenReceivedJsonRequestWhenProcesstingThenItIsHandled() {
         givenMessageInAQueue();
+        givenJsonRpcHandler();
 
         whenServiceStart();
 
@@ -111,6 +117,7 @@ public class SqsRemoteServiceTest {
     @DirtiesContext
     public void givenMultipleRequestsWhenProcessingThenAllOfThemAreHandled() {
         givenMessagesInAQueue();
+        givenJsonRpcHandler();
 
         whenServiceStart();
 
@@ -121,10 +128,37 @@ public class SqsRemoteServiceTest {
     @DirtiesContext
     public void givenProcessedRequestWhenHandlingThenMessageIsDeletedFromQueue() {
         givenMessageInAQueue();
-
+        givenJsonRpcHandler();
+        
         whenServiceStart();
 
         thenMessageIsDeletedFromQueue();
+    }
+
+    @Test
+    @DirtiesContext
+    public void givenProcessedRequestWhenHandlingThenResponseIsSent() {
+        givenMessageInAQueue();
+        givenJsonRpcHandler();
+        givenClientResponseQueueName();
+
+        whenServiceStart();
+
+        thenResponseIsSent();
+    }
+
+    private void givenClientResponseQueueName() {
+        Mockito.when(serviceManager.getClientResponseQueueName(eq("client_session_id"))).thenReturn("client_response_queue");
+    }
+
+    private void givenJsonRpcHandler() {
+        JsonRpcRequest request = new JsonRpcRequest().withMessages(JSON_REQUEST);
+        Mockito.when(jsonRpcHandler.handle(eq(request))).thenReturn(new JsonRpcResponse());
+    }
+
+    private void thenResponseIsSent() {
+        SendMessageRequest sendRequest = new SendMessageRequest().withMessageBody(JSON_RESPONSE).withQueueUrl("client_response_queue");
+        verify(queue, timeout(1000)).sendMessage(eq(sendRequest));
     }
 
     private void thenMessageIsDeletedFromQueue() {
@@ -147,7 +181,7 @@ public class SqsRemoteServiceTest {
     }
 
     private void thenMessageIsDispathedForProcessing() {
-        JsonRpcRequest req = new JsonRpcRequest().withMessages("Json request...");
+        JsonRpcRequest req = new JsonRpcRequest().withMessages(JSON_REQUEST);
         Mockito.verify(jsonRpcHandler, Mockito.timeout(5 * 1000)).handle(Matchers.eq(req));
     }
 
@@ -158,7 +192,7 @@ public class SqsRemoteServiceTest {
     }
 
     private Message createMessage() {
-        return createMessage("Json request...");
+        return createMessage(JSON_REQUEST);
     }
 
     private Message createMessage(String body) {

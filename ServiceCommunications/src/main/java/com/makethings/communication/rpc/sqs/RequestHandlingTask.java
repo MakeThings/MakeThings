@@ -2,22 +2,36 @@ package com.makethings.communication.rpc.sqs;
 
 import java.util.concurrent.Executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.makethings.communication.rpc.ServiceManager;
 import com.makethings.communication.rpc.json.JsonRpcHandler;
 import com.makethings.communication.rpc.json.JsonRpcRequest;
+import com.makethings.communication.rpc.json.JsonRpcResponse;
 
 public class RequestHandlingTask implements Runnable {
 
+    private final static Logger LOG = LoggerFactory.getLogger(RequestHandlingTask.class);
+   
     private JsonRpcHandler jsonRpcHandler;
     private Message message;
     private SqsQueue queue;
     private String requstQueueName;
+    private ServiceManager serviceManager;
 
     @Override
     public void run() {
-        jsonRpcHandler.handle(new JsonRpcRequest().withMessages(message.getBody()));
+        LOG.debug("Handling message: {}, from {}", message, requstQueueName);
+        JsonRpcRequest jsonRpcRequest = new JsonRpcRequest().withMessages(message.getBody());
+        JsonRpcResponse jsonRpcResponse = jsonRpcHandler.handle(jsonRpcRequest);
         deleteMessageFromQueue();
+        String responseQueueName = serviceManager.getClientResponseQueueName(jsonRpcRequest.getClientSessionId());
+        SendMessageRequest sendMessageRequest = new SendMessageRequest().withQueueUrl(responseQueueName).withMessageBody(jsonRpcResponse.getMessage());
+        queue.sendMessage(sendMessageRequest);
     }
 
     private void deleteMessageFromQueue() {
@@ -45,6 +59,11 @@ public class RequestHandlingTask implements Runnable {
 
     public RequestHandlingTask withRequestQueueName(String requstQueueName) {
         this.requstQueueName = requstQueueName;
+        return this;
+    }
+
+    public RequestHandlingTask withServiceManager(ServiceManager serviceManager) {
+        this.serviceManager = serviceManager;
         return this;
     }
 

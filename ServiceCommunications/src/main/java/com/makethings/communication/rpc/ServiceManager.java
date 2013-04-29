@@ -12,4 +12,6 @@ public interface ServiceManager {
 
     void reportServiceStatus(String sessionId, RemoteServiceState state);
 
+    String getClientResponseQueueName(String clientSessionId);
+
 }
