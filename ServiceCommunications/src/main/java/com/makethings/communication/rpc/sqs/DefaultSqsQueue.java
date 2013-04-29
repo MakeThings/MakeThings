@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
@@ -58,6 +59,11 @@ public class DefaultSqsQueue implements SqsQueue {
     @Required
     public void setServiceFactoty(AmazonServiceFactoty serviceFactoty) {
         this.serviceFactory = serviceFactoty;
+    }
+
+    @Override
+    public void deleteMessage(DeleteMessageRequest deleteMessageRequest) {
+        
     }
 
 }

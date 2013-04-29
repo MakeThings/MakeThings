@@ -16,6 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
@@ -58,6 +59,8 @@ public class SqsRemoteServiceTest {
 
     @Autowired
     private JsonRpcHandler jsonRpcHandler;
+
+    private Message lastMessage;
 
     @Before
     public void setUp() {
@@ -114,6 +117,22 @@ public class SqsRemoteServiceTest {
         thenMessagesAreDispathedForProcessing();
     }
 
+    @Test
+    @DirtiesContext
+    public void givenProcessedRequestWhenHandlingThenMessageIsDeletedFromQueue() {
+        givenMessageInAQueue();
+
+        whenServiceStart();
+
+        thenMessageIsDeletedFromQueue();
+    }
+
+    private void thenMessageIsDeletedFromQueue() {
+        DeleteMessageRequest req = new DeleteMessageRequest().withQueueUrl(serviceSession.getRequstQueueName()).withReceiptHandle(
+                lastMessage.getReceiptHandle());
+        verify(queue, timeout(1000)).deleteMessage(eq(req));
+    }
+
     private void thenMessagesAreDispathedForProcessing() {
         verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonRpcRequest().withMessages("One")));
         verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonRpcRequest().withMessages("Two")));
@@ -143,7 +162,8 @@ public class SqsRemoteServiceTest {
     }
 
     private Message createMessage(String body) {
-        return new Message().withBody(body);
+        lastMessage = new Message().withBody(body).withReceiptHandle(body + " rh");
+        return lastMessage;
     }
 
     private void thenRequestToReceiveMessagesIsSent() {

@@ -59,7 +59,8 @@ public class SqsRemoteService extends AbstractRemoteService {
         LOG.debug("Recevied messages {}, from {}", receivedMessages, getSession().getRequstQueueName());
         for (Message message : messages) {
             LOG.debug("Handling message {}, received from {}", message, getSession().getRequstQueueName());
-            new RequestHandlingTask().withMessage(message).withHandler(jsonRpcHandler).execute(requestProcessingExecutor);
+            new RequestHandlingTask().withMessage(message).withHandler(jsonRpcHandler).withQueue(queue)
+                    .withRequestQueueName(getSession().getRequstQueueName()).execute(requestProcessingExecutor);
         }
     }
 
