@@ -20,10 +20,10 @@ public class DefaultJsonRpcHandler implements JsonRpcHandler {
     private Class<?> serviceInterfaceClass;
 
     @Override
-    public void handle(JsonRpcRequest request, JsonRpcResponse response) {
+    public void handle(JsonServiceRequest request, JsonServiceResponse response) {
         LOG.debug("Handling json request {}", request);
         
-        JsonNode jsonNode = request.asJsonNode();
+        JsonNode jsonNode = request.getRpcRequest();
         try {
             getJsonRpcService().handleNode(jsonNode, response.getOutputStream());
         }

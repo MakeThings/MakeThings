@@ -19,13 +19,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultJsonRpcHandlerTest {
 
-    private JsonRpcRequest request;
+    private JsonServiceRequest request;
     private DefaultJsonRpcHandler handler;
 
     @Mock
     private TestIdeaService ideaService;
 
-    private JsonRpcResponse response;
+    private JsonServiceResponse response;
 
     @Before
     public void setUp() {
@@ -34,7 +34,7 @@ public class DefaultJsonRpcHandlerTest {
         handler.setServiceInterfaceClass(TestIdeaService.class);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        response = new JsonRpcResponse().withOutputStream(baos);
+        response = new JsonServiceResponse().withOutputStream(baos);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class DefaultJsonRpcHandlerTest {
     }
 
     private void givenJsonRequest() throws IOException {
-        request = new JsonRpcRequest().withMessages(readFromFilename("/json/createIdeaServiceRequest.txt"));
+        request = new JsonServiceRequest().withMessages(readFromFilename("/json/createIdeaServiceRequest.txt"));
     }
 
 }

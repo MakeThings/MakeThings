@@ -25,8 +25,8 @@ import com.makethings.communication.amazon.AmazonServiceCredentials;
 import com.makethings.communication.rpc.ServiceManager;
 import com.makethings.communication.rpc.TestServiceManagerHelper;
 import com.makethings.communication.rpc.json.JsonRpcHandler;
-import com.makethings.communication.rpc.json.JsonRpcRequest;
-import com.makethings.communication.rpc.json.JsonRpcResponse;
+import com.makethings.communication.rpc.json.JsonServiceRequest;
+import com.makethings.communication.rpc.json.JsonServiceResponse;
 import com.makethings.communication.session.service.DefaultServiceSession;
 import com.makethings.communication.session.service.ServiceSessionDefinition;
 
@@ -172,7 +172,7 @@ public class SqsRemoteServiceTest {
     }
 
     private void verifyThatHandlerExecutedWithRequest(String message) {
-        verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonRpcRequest().withMessages(message)), Matchers.isA(JsonRpcResponse.class));
+        verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonServiceRequest().withMessages(message)), Matchers.isA(JsonServiceResponse.class));
     }
     
     private void thenMessageIsDispathedForProcessing() {

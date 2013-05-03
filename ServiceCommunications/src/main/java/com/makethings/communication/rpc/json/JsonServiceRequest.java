@@ -9,19 +9,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JsonRpcRequest {
+public class JsonServiceRequest {
 
-    private final static Logger LOG = LoggerFactory.getLogger(JsonRpcRequest.class);
+    private final static Logger LOG = LoggerFactory.getLogger(JsonServiceRequest.class);
     
     private String message;
     private JsonNode serviceRequest;
 
-    public JsonRpcRequest withMessages(String message) {
+    public JsonServiceRequest withMessages(String message) {
         this.message = message;
         return this;
     }
 
-    public JsonRpcRequest parse() {
+    public JsonServiceRequest parse() {
         ObjectMapper mapper = new ObjectMapper();
         try {
             serviceRequest = mapper.readTree(message);
@@ -52,7 +52,7 @@ public class JsonRpcRequest {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        JsonRpcRequest other = (JsonRpcRequest) obj;
+        JsonServiceRequest other = (JsonServiceRequest) obj;
         if (other.message == null ^ this.message == null)
             return false;
         if (other.message != null && other.message.equals(this.message) == false)
@@ -70,7 +70,7 @@ public class JsonRpcRequest {
         return "JsonRpcRequest [message=" + message + "]";
     }
 
-    public JsonNode asJsonNode() {
+    public JsonNode getRpcRequest() {
         if (!isParsed()) {
             parse();
         }

@@ -6,7 +6,7 @@ import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.makethings.communication.rpc.ServiceManager;
 import com.makethings.communication.rpc.sqs.SqsQueue;
 
-public class JsonRpcResponse {
+public class JsonServiceResponse {
 
     private OutputStream os;
     private String clientSessionId;
@@ -17,22 +17,22 @@ public class JsonRpcResponse {
         return os;
     }
 
-    public JsonRpcResponse withOutputStream(OutputStream os) {
+    public JsonServiceResponse withOutputStream(OutputStream os) {
         this.os = os;
         return this;
     }
 
-    public JsonRpcResponse withClientSessionId(String clientSessionId) {
+    public JsonServiceResponse withClientSessionId(String clientSessionId) {
         this.clientSessionId = clientSessionId;
         return this;
     }
 
-    public JsonRpcResponse withQueue(SqsQueue queue) {
+    public JsonServiceResponse withQueue(SqsQueue queue) {
         this.queue = queue;
         return this;
     }
 
-    public JsonRpcResponse withServiceManager(ServiceManager serviceManager) {
+    public JsonServiceResponse withServiceManager(ServiceManager serviceManager) {
         this.serviceManager = serviceManager;
         return this;
     }

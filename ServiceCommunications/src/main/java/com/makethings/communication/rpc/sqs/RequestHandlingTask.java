@@ -9,8 +9,8 @@ import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.makethings.communication.rpc.ServiceManager;
 import com.makethings.communication.rpc.json.JsonRpcHandler;
-import com.makethings.communication.rpc.json.JsonRpcRequest;
-import com.makethings.communication.rpc.json.JsonRpcResponse;
+import com.makethings.communication.rpc.json.JsonServiceRequest;
+import com.makethings.communication.rpc.json.JsonServiceResponse;
 
 public class RequestHandlingTask implements Runnable {
 
@@ -24,9 +24,10 @@ public class RequestHandlingTask implements Runnable {
 
     @Override
     public void run() {
+        // TODO: add exception handling
         LOG.debug("Handling message: {}, from {}", message, requstQueueName);
-        JsonRpcRequest jsonRpcRequest = new JsonRpcRequest().withMessages(message.getBody());
-        JsonRpcResponse jsonRpcResponse = new JsonRpcResponse();
+        JsonServiceRequest jsonRpcRequest = new JsonServiceRequest().withMessages(message.getBody());
+        JsonServiceResponse jsonRpcResponse = new JsonServiceResponse();
         jsonRpcResponse.withClientSessionId(jsonRpcRequest.getClientSessionId());
         jsonRpcResponse.withQueue(queue).withServiceManager(serviceManager);
         jsonRpcHandler.handle(jsonRpcRequest, jsonRpcResponse);
