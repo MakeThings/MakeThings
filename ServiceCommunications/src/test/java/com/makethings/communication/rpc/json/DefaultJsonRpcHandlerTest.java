@@ -7,10 +7,13 @@ import static org.mockito.Mockito.verify;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -18,18 +21,18 @@ public class DefaultJsonRpcHandlerTest {
 
     private JsonRpcRequest request;
     private DefaultJsonRpcHandler handler;
-    
+
     @Mock
     private TestIdeaService ideaService;
 
     private JsonRpcResponse response;
-    
+
     @Before
     public void setUp() {
         handler = new DefaultJsonRpcHandler();
         handler.setService(ideaService);
         handler.setServiceInterfaceClass(TestIdeaService.class);
-    
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         response = new JsonRpcResponse().withOutputStream(baos);
     }
@@ -39,8 +42,27 @@ public class DefaultJsonRpcHandlerTest {
         givenJsonRequest();
 
         whenHandlingRequest();
-        
+
         thenCreateIdeamMethodIsInvoked();
+    }
+
+    @Test
+    public void givenResultOfServiceMethodWhenHandlingThenItShouldBeMarshaledIntoJson() throws IOException {
+        givenJsonRequest();
+        givenServiceMethodResult();
+
+        whenHandlingRequest();
+
+        thenResultOfMethodCallIsMarshaledIntoJson();
+    }
+
+    private void thenResultOfMethodCallIsMarshaledIntoJson() throws IOException {
+        String actualJson = response.getOutputStream().toString();
+        Assert.assertThat(actualJson, CoreMatchers.equalTo(readFromFilename("/json/createIdeaJsonResponse.txt")));
+    }
+
+    private void givenServiceMethodResult() {
+        Mockito.when(ideaService.createNewIdea(eq("foo"))).thenReturn(100);
     }
 
     private void thenCreateIdeamMethodIsInvoked() {
@@ -52,7 +74,7 @@ public class DefaultJsonRpcHandlerTest {
     }
 
     private void givenJsonRequest() throws IOException {
-        request = new JsonRpcRequest().withMessages(readFromFilename("/json/createIdeaRequest.txt"));
+        request = new JsonRpcRequest().withMessages(readFromFilename("/json/createIdeaServiceRequest.txt"));
     }
 
 }
