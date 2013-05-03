@@ -27,7 +27,8 @@ public class RequestHandlingTask implements Runnable {
     public void run() {
         LOG.debug("Handling message: {}, from {}", message, requstQueueName);
         JsonRpcRequest jsonRpcRequest = new JsonRpcRequest().withMessages(message.getBody());
-        JsonRpcResponse jsonRpcResponse = jsonRpcHandler.handle(jsonRpcRequest);
+        JsonRpcResponse jsonRpcResponse = new JsonRpcResponse();
+        jsonRpcHandler.handle(jsonRpcRequest, jsonRpcResponse);
         deleteMessageFromQueue();
         String responseQueueName = serviceManager.getClientResponseQueueName(jsonRpcRequest.getClientSessionId());
         SendMessageRequest sendMessageRequest = new SendMessageRequest().withQueueUrl(responseQueueName).withMessageBody(jsonRpcResponse.getMessage());

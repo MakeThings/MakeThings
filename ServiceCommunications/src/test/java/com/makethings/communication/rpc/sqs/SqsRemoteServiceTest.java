@@ -106,7 +106,6 @@ public class SqsRemoteServiceTest {
     @DirtiesContext
     public void givenReceivedJsonRequestWhenProcesstingThenItIsHandled() {
         givenMessageInAQueue();
-        givenJsonRpcHandler();
 
         whenServiceStart();
 
@@ -117,7 +116,6 @@ public class SqsRemoteServiceTest {
     @DirtiesContext
     public void givenMultipleRequestsWhenProcessingThenAllOfThemAreHandled() {
         givenMessagesInAQueue();
-        givenJsonRpcHandler();
 
         whenServiceStart();
 
@@ -128,8 +126,7 @@ public class SqsRemoteServiceTest {
     @DirtiesContext
     public void givenProcessedRequestWhenHandlingThenMessageIsDeletedFromQueue() {
         givenMessageInAQueue();
-        givenJsonRpcHandler();
-        
+
         whenServiceStart();
 
         thenMessageIsDeletedFromQueue();
@@ -139,7 +136,6 @@ public class SqsRemoteServiceTest {
     @DirtiesContext
     public void givenProcessedRequestWhenHandlingThenResponseIsSent() {
         givenMessageInAQueue();
-        givenJsonRpcHandler();
         givenClientResponseQueueName();
 
         whenServiceStart();
@@ -149,11 +145,6 @@ public class SqsRemoteServiceTest {
 
     private void givenClientResponseQueueName() {
         Mockito.when(serviceManager.getClientResponseQueueName(eq("client_session_id"))).thenReturn("client_response_queue");
-    }
-
-    private void givenJsonRpcHandler() {
-        JsonRpcRequest request = new JsonRpcRequest().withMessages(JSON_REQUEST);
-        Mockito.when(jsonRpcHandler.handle(eq(request))).thenReturn(new JsonRpcResponse());
     }
 
     private void thenResponseIsSent() {
@@ -168,9 +159,9 @@ public class SqsRemoteServiceTest {
     }
 
     private void thenMessagesAreDispathedForProcessing() {
-        verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonRpcRequest().withMessages("One")));
-        verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonRpcRequest().withMessages("Two")));
-        verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonRpcRequest().withMessages("Three")));
+        verifyThatHandlerExecutedWithRequest("One");
+        verifyThatHandlerExecutedWithRequest("Two");
+        verifyThatHandlerExecutedWithRequest("Three");
     }
 
     private void givenMessagesInAQueue() {
@@ -180,9 +171,12 @@ public class SqsRemoteServiceTest {
                 .thenReturn(receiveMessageResult2).thenReturn(EMPTY_MESSAGE);
     }
 
+    private void verifyThatHandlerExecutedWithRequest(String message) {
+        verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonRpcRequest().withMessages(message)), Matchers.isA(JsonRpcResponse.class));
+    }
+    
     private void thenMessageIsDispathedForProcessing() {
-        JsonRpcRequest req = new JsonRpcRequest().withMessages(JSON_REQUEST);
-        Mockito.verify(jsonRpcHandler, Mockito.timeout(5 * 1000)).handle(Matchers.eq(req));
+        verifyThatHandlerExecutedWithRequest(JSON_REQUEST);
     }
 
     private void givenMessageInAQueue() {

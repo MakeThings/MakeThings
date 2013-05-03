@@ -1,5 +1,7 @@
 package com.makethings.communication.rpc.json;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 public interface JsonRpcHandler {
-    JsonRpcResponse handle(JsonRpcRequest r);
+    void handle(JsonRpcRequest request, JsonRpcResponse response);
 }
