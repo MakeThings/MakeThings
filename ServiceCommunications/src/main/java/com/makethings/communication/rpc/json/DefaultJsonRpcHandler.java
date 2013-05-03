@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.googlecode.jsonrpc4j.JsonRpcServer;
+import com.makethings.communication.rpc.RemoteServiceException;
 import com.makethings.communication.rpc.sqs.RequestHandlingTask;
 
 public class DefaultJsonRpcHandler implements JsonRpcHandler {
@@ -27,7 +28,7 @@ public class DefaultJsonRpcHandler implements JsonRpcHandler {
             getJsonRpcService().handleNode(jsonNode, response.getOutputStream());
         }
         catch (IOException e) {
-            e.printStackTrace();
+            throw new RemoteServiceException("Error handling service request: " + request.toString(), e);
         }
     }
 

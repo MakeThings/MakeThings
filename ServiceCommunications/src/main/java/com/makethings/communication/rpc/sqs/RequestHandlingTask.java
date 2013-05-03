@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
-import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.makethings.communication.rpc.ServiceManager;
 import com.makethings.communication.rpc.json.JsonRpcHandler;
 import com.makethings.communication.rpc.json.JsonRpcRequest;
@@ -16,7 +15,7 @@ import com.makethings.communication.rpc.json.JsonRpcResponse;
 public class RequestHandlingTask implements Runnable {
 
     private final static Logger LOG = LoggerFactory.getLogger(RequestHandlingTask.class);
-   
+
     private JsonRpcHandler jsonRpcHandler;
     private Message message;
     private SqsQueue queue;
@@ -28,11 +27,11 @@ public class RequestHandlingTask implements Runnable {
         LOG.debug("Handling message: {}, from {}", message, requstQueueName);
         JsonRpcRequest jsonRpcRequest = new JsonRpcRequest().withMessages(message.getBody());
         JsonRpcResponse jsonRpcResponse = new JsonRpcResponse();
+        jsonRpcResponse.withClientSessionId(jsonRpcRequest.getClientSessionId());
+        jsonRpcResponse.withQueue(queue).withServiceManager(serviceManager);
         jsonRpcHandler.handle(jsonRpcRequest, jsonRpcResponse);
         deleteMessageFromQueue();
-        String responseQueueName = serviceManager.getClientResponseQueueName(jsonRpcRequest.getClientSessionId());
-        SendMessageRequest sendMessageRequest = new SendMessageRequest().withQueueUrl(responseQueueName).withMessageBody(jsonRpcResponse.getMessage());
-        queue.sendMessage(sendMessageRequest);
+        jsonRpcResponse.send();
     }
 
     private void deleteMessageFromQueue() {

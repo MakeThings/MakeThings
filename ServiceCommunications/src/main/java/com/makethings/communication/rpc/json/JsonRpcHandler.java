@@ -1,7 +1,7 @@
 package com.makethings.communication.rpc.json;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.makethings.communication.rpc.RemoteServiceException;
 
 public interface JsonRpcHandler {
-    void handle(JsonRpcRequest request, JsonRpcResponse response);
+    void handle(JsonRpcRequest request, JsonRpcResponse response) throws RemoteServiceException;
 }
