@@ -1,5 +1,8 @@
 package com.makethings.communication.rpc.json;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.io.IOException;
 
 import org.hamcrest.CoreMatchers;
@@ -13,6 +16,7 @@ public class JsonServiceRequestTest {
 
     private JsonServiceRequest request;
     private JsonNode jsonNode;
+    private String clientSessionId;
 
     @Test
     public void givenServiceRequestWhenGetRpcRequestThenItContainsReq() throws IOException {
@@ -22,9 +26,26 @@ public class JsonServiceRequestTest {
 
         thenItContainsReq();
     }
+    
+    @Test
+    public void givenServiceRequestWhenGetClientSessionSessionIdThenItReturnsValueFromTheRequest() throws IOException {
+        givenServiceRequest();
+
+        whenGetClientSessionId();
+        
+        thenClientSessionIdIs200();
+    }
+
+    private void thenClientSessionIdIs200() {
+        assertThat(clientSessionId, is("200"));
+    }
+
+    private void whenGetClientSessionId() {
+        clientSessionId = request.getClientSessionId();
+    }
 
     private void thenItContainsReq() throws IOException {
-        Assert.assertThat(jsonNode.toString(), CoreMatchers.is(FileHelper.readFromFilename("/json/createIdeaRpcRequest.txt")));
+        assertThat(jsonNode.toString(), is(FileHelper.readFromFilename("/json/createIdeaRpcRequest.txt")));
     }
 
     private void whenGetRpcRequest() {

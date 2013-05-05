@@ -63,7 +63,17 @@ public class JsonServiceRequest {
     }
 
     public String getClientSessionId() {
-        return "client_session_id";
+        if (!isParsed()) {
+            parse();
+        }
+        return extractClientSessionId();
+    }
+
+    private String extractClientSessionId() {
+        JsonNode jsonNode = serviceRequest.get("SId");
+        String clientSessionId = jsonNode.asText();
+        LOG.debug("Extracted Client Session Id {}", clientSessionId);
+        return clientSessionId;
     }
 
     @Override

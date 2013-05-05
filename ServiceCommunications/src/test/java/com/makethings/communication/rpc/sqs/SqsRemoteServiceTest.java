@@ -1,8 +1,12 @@
 package com.makethings.communication.rpc.sqs;
 
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -10,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -29,15 +34,20 @@ import com.makethings.communication.rpc.json.JsonServiceRequest;
 import com.makethings.communication.rpc.json.JsonServiceResponse;
 import com.makethings.communication.session.service.DefaultServiceSession;
 import com.makethings.communication.session.service.ServiceSessionDefinition;
+import com.makethings.communication.support.FileHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/SqsRemoteServiceTest.xml")
 public class SqsRemoteServiceTest {
 
-    private static final String JSON_REQUEST = "Json request...";
+    private static final String JSON_REQUEST_FILENAME = "/json/createIdeaServiceRequest.txt";
+    private static final String JSON_REQUEST_ONE_FILENAME = "/json/createIdeaServiceRequestOne.txt";
+    private static final String JSON_REQUEST_TWO_FILENAME = "/json/createIdeaServiceRequestTwo.txt";
+    private static final String JSON_REQUEST_THREE_FILENAME = "/json/createIdeaServiceRequestThree.txt";
     private static final String JSON_RESPONSE = "Json response...";
 
     private static final ReceiveMessageResult EMPTY_MESSAGE = new ReceiveMessageResult();
+    private static final String CLIENT_SESSION_ID = "200";
 
     @Autowired
     private SqsQueue queue;
@@ -104,7 +114,7 @@ public class SqsRemoteServiceTest {
 
     @Test
     @DirtiesContext
-    public void givenReceivedJsonRequestWhenProcesstingThenItIsHandled() {
+    public void givenReceivedJsonRequestWhenProcesstingThenItIsHandled() throws IOException {
         givenMessageInAQueue();
 
         whenServiceStart();
@@ -124,7 +134,7 @@ public class SqsRemoteServiceTest {
 
     @Test
     @DirtiesContext
-    public void givenProcessedRequestWhenHandlingThenMessageIsDeletedFromQueue() {
+    public void givenProcessedRequestWhenHandlingThenMessageIsDeletedFromQueue() throws IOException {
         givenMessageInAQueue();
 
         whenServiceStart();
@@ -134,7 +144,7 @@ public class SqsRemoteServiceTest {
 
     @Test
     @DirtiesContext
-    public void givenProcessedRequestWhenHandlingThenResponseIsSent() {
+    public void givenProcessedRequestWhenHandlingThenResponseIsSent() throws IOException {
         givenMessageInAQueue();
         givenClientResponseQueueName();
 
@@ -144,7 +154,7 @@ public class SqsRemoteServiceTest {
     }
 
     private void givenClientResponseQueueName() {
-        Mockito.when(serviceManager.getClientResponseQueueName(eq("client_session_id"))).thenReturn("client_response_queue");
+        Mockito.when(serviceManager.getClientResponseQueueName(eq(CLIENT_SESSION_ID))).thenReturn("client_response_queue");
     }
 
     private void thenResponseIsSent() {
@@ -159,24 +169,29 @@ public class SqsRemoteServiceTest {
     }
 
     private void thenMessagesAreDispathedForProcessing() {
-        verifyThatHandlerExecutedWithRequest("One");
-        verifyThatHandlerExecutedWithRequest("Two");
-        verifyThatHandlerExecutedWithRequest("Three");
+        verifyThatHandlerExecutedWithRequest(FileHelper.readFromFilename(JSON_REQUEST_ONE_FILENAME));
+        verifyThatHandlerExecutedWithRequest(FileHelper.readFromFilename(JSON_REQUEST_TWO_FILENAME));
+        verifyThatHandlerExecutedWithRequest(FileHelper.readFromFilename(JSON_REQUEST_THREE_FILENAME));
     }
 
     private void givenMessagesInAQueue() {
-        ReceiveMessageResult receiveMessageResult1 = new ReceiveMessageResult().withMessages(createMessage("One"), createMessage("Two"));
-        ReceiveMessageResult receiveMessageResult2 = new ReceiveMessageResult().withMessages(createMessage("Three"));
-        Mockito.when(queue.receiveMessage(Matchers.isA(ReceiveMessageRequest.class))).thenReturn(receiveMessageResult1)
-                .thenReturn(receiveMessageResult2).thenReturn(EMPTY_MESSAGE);
+        ReceiveMessageResult receiveMessageResult1 = new ReceiveMessageResult().withMessages(
+                createMessageFromFile(JSON_REQUEST_ONE_FILENAME), createMessageFromFile(JSON_REQUEST_TWO_FILENAME));
+        ReceiveMessageResult receiveMessageResult2 = new ReceiveMessageResult()
+                .withMessages(createMessageFromFile(JSON_REQUEST_THREE_FILENAME));
+
+        OngoingStubbing<ReceiveMessageResult> stubbing = when(queue.receiveMessage(isA(ReceiveMessageRequest.class)));
+        stubbing.thenReturn(receiveMessageResult1).thenReturn(receiveMessageResult2).thenReturn(EMPTY_MESSAGE);
     }
 
     private void verifyThatHandlerExecutedWithRequest(String message) {
-        verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonServiceRequest().withMessages(message)), Matchers.isA(JsonServiceResponse.class));
+        verify(jsonRpcHandler, timeout(5 * 1000)).handle(eq(new JsonServiceRequest().withMessages(message)),
+                Matchers.isA(JsonServiceResponse.class));
     }
-    
+
     private void thenMessageIsDispathedForProcessing() {
-        verifyThatHandlerExecutedWithRequest(JSON_REQUEST);
+        String message = FileHelper.readFromFilename(JSON_REQUEST_FILENAME);
+        verifyThatHandlerExecutedWithRequest(message);
     }
 
     private void givenMessageInAQueue() {
@@ -186,12 +201,17 @@ public class SqsRemoteServiceTest {
     }
 
     private Message createMessage() {
-        return createMessage(JSON_REQUEST);
+        return createMessageFromFile(JSON_REQUEST_FILENAME);
     }
 
     private Message createMessage(String body) {
         lastMessage = new Message().withBody(body).withReceiptHandle(body + " rh");
         return lastMessage;
+    }
+
+    private Message createMessageFromFile(String fileName) {
+        String body = FileHelper.readFromFilename(fileName);
+        return createMessage(body);
     }
 
     private void thenRequestToReceiveMessagesIsSent() {
