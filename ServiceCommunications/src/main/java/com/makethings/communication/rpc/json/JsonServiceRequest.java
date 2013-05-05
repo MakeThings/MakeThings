@@ -8,11 +8,12 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.makethings.communication.rpc.RemoteServiceException;
 
 public class JsonServiceRequest {
 
     private final static Logger LOG = LoggerFactory.getLogger(JsonServiceRequest.class);
-    
+
     private String message;
     private JsonNode serviceRequest;
 
@@ -28,10 +29,10 @@ public class JsonServiceRequest {
             LOG.debug("Parsed json node {}", serviceRequest);
         }
         catch (JsonProcessingException e) {
-            e.printStackTrace();
+            throw new RemoteServiceException("Error parsing json request: " + message + ", error: " + e.getMessage(), e);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            throw new RemoteServiceException("Error parsing json request: " + message + ", error: " + e.getMessage(), e);
         }
         return this;
     }
