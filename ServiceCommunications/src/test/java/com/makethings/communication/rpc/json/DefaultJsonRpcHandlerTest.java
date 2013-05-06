@@ -4,7 +4,6 @@ import static com.makethings.communication.support.FileHelper.readFromFilename;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.hamcrest.CoreMatchers;
@@ -33,8 +32,7 @@ public class DefaultJsonRpcHandlerTest {
         handler.setService(ideaService);
         handler.setServiceInterfaceClass(TestIdeaService.class);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        response = new JsonServiceResponse().withOutputStream(baos);
+        response = new JsonServiceResponse();
     }
 
     @Test

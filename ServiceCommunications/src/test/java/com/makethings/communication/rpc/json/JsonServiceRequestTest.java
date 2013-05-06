@@ -5,8 +5,6 @@ import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;

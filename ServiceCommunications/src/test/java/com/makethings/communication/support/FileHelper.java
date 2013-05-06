@@ -22,6 +22,15 @@ public class FileHelper {
         catch (IOException e) {
             Assert.fail("Cannot read message from file, name: " + classPathFileName + ", error: " + e.getMessage());
         }
+        finally {
+            try {
+                br.close();
+                resourceAsStream.close();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return content;
     }
 }
