@@ -16,8 +16,9 @@
 			value="com.makethings.communication.amazon.AmazonServiceCredentials"></constructor-arg>
 	</bean>
 
-	<bean id="awsCredentials" class="com.amazonaws.auth.PropertiesCredentials">
-		<constructor-arg name="inputStream" value="classpath:/aws_my.properties" />
+	<bean id="awsCredentials" class="org.mockito.Mockito"
+		factory-method="mock">
+		<constructor-arg value="com.amazonaws.auth.AWSCredentials" />
 	</bean>
 
 </beans>
