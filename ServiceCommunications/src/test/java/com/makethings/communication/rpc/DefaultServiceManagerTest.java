@@ -3,6 +3,7 @@ package com.makethings.communication.rpc;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.hamcrest.CoreMatchers;
@@ -17,12 +18,15 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.makethings.communication.session.ApplicationSessionService;
 import com.makethings.communication.session.CreateSessionException;
+import com.makethings.communication.session.service.DefaultServiceSession;
 import com.makethings.communication.session.service.ServiceSession;
 import com.makethings.communication.session.service.ServiceSessionDefinition;
 import com.makethings.communication.session.user.UserSession;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultServiceManagerTest {
+
+    private static final String SERVICE_SESSION_ID = "123";
 
     private DefaultServiceManager serviceManager;
 
@@ -66,6 +70,29 @@ public class DefaultServiceManagerTest {
         givenSessionDefinition();
 
         whenWrongSessionTypeCreated();
+    }
+    
+    @Test
+    public void givenSessionIdWhenCloseSessionThenCorrespondedSessionShouldBeClosed() {
+        givenSessionId();
+        
+        whenCloseSession();
+        
+        thenServiceSessionIsClosed();
+    }
+
+    private void thenServiceSessionIsClosed() {
+        verify(applicationSessionService).deleteSessionById(SERVICE_SESSION_ID);
+    }
+
+    private void whenCloseSession() {
+        serviceManager.closeServiceSession(SERVICE_SESSION_ID);
+    }
+
+    private void givenSessionId() {
+        DefaultServiceSession tmpSession = new DefaultServiceSession(serviceSessionDefinition);
+        tmpSession.setId(SERVICE_SESSION_ID);
+        openedSession = tmpSession;
     }
 
     private void expectExceptionWhenWrongSessionIsCreated() {

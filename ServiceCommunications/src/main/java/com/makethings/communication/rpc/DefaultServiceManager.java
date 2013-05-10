@@ -19,7 +19,6 @@ public class DefaultServiceManager implements ServiceManager {
 
     @Override
     public ServiceSession openServiceSession(ServiceSessionDefinition sessionDefinition) throws CreateSessionException {
-        
         LOG.info("Creating service session for: {}", sessionDefinition.getServiceName());
         
         ApplicationSession appSession = sessionService.createNewSession(sessionDefinition);
@@ -35,8 +34,9 @@ public class DefaultServiceManager implements ServiceManager {
 
     @Override
     public void closeServiceSession(String sessionId) throws SessionNotFoundException {
-        // TODO Auto-generated method stub
-
+        LOG.info("Closing service session: {}", sessionId);
+        
+        sessionService.deleteSessionById(sessionId);
     }
 
     @Override
