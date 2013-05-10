@@ -6,10 +6,10 @@ import org.slf4j.LoggerFactory;
 import com.makethings.communication.session.ApplicationSession;
 import com.makethings.communication.session.ApplicationSessionService;
 import com.makethings.communication.session.CreateSessionException;
-import com.makethings.communication.session.InMemoryApplicationSessionService;
 import com.makethings.communication.session.SessionNotFoundException;
 import com.makethings.communication.session.service.ServiceSession;
 import com.makethings.communication.session.service.ServiceSessionDefinition;
+import com.makethings.communication.session.user.UserSession;
 
 public class DefaultServiceManager implements ServiceManager {
 
@@ -20,7 +20,7 @@ public class DefaultServiceManager implements ServiceManager {
     @Override
     public ServiceSession openServiceSession(ServiceSessionDefinition sessionDefinition) throws CreateSessionException {
         LOG.info("Creating service session for: {}", sessionDefinition.getServiceName());
-        
+
         ApplicationSession appSession = sessionService.createNewSession(sessionDefinition);
         ServiceSession serviceSession = null;
         if (appSession instanceof ServiceSession) {
@@ -35,20 +35,24 @@ public class DefaultServiceManager implements ServiceManager {
     @Override
     public void closeServiceSession(String sessionId) throws SessionNotFoundException {
         LOG.info("Closing service session: {}", sessionId);
-        
+
         sessionService.deleteSessionById(sessionId);
     }
 
     @Override
     public void reportServiceStatus(String sessionId, RemoteServiceState state) {
-        // TODO Auto-generated method stub
-
+        // not implemented yet
     }
 
     @Override
     public String getClientResponseQueueName(String clientSessionId) {
-        // TODO Auto-generated method stub
-        return null;
+        ApplicationSession appSession = sessionService.getSessionById(clientSessionId);
+        if (appSession instanceof UserSession) {
+            return ((UserSession) appSession).getResponseQueueName();
+        }
+        else {
+            return null;
+        }
     }
 
     public ApplicationSessionService getSessionService() {

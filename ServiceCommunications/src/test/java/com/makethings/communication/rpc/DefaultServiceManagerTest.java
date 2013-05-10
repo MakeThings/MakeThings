@@ -1,6 +1,8 @@
 package com.makethings.communication.rpc;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -14,6 +16,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.makethings.communication.session.ApplicationSessionService;
@@ -27,6 +30,10 @@ import com.makethings.communication.session.user.UserSession;
 public class DefaultServiceManagerTest {
 
     private static final String SERVICE_SESSION_ID = "123";
+
+    private static final String USER_SESSION_ID = "456";
+
+    private static final String USER_RESPOSE_QUEUE_NAME = "usr_resp_q_name";
 
     private DefaultServiceManager serviceManager;
 
@@ -43,9 +50,11 @@ public class DefaultServiceManagerTest {
     private UserSession userSession;
 
     private ServiceSession openedSession;
-    
+
     @Rule
     public ExpectedException exception = ExpectedException.none();
+
+    private String responseQueueName;
 
     @Before
     public void setUp() {
@@ -66,19 +75,43 @@ public class DefaultServiceManagerTest {
     @Test
     public void givenWrongTypeOfSessionWhenCreateSessionThenExceptionIsThrown() {
         expectExceptionWhenWrongSessionIsCreated();
-        
+
         givenSessionDefinition();
 
         whenWrongSessionTypeCreated();
     }
-    
+
     @Test
     public void givenSessionIdWhenCloseSessionThenCorrespondedSessionShouldBeClosed() {
         givenSessionId();
-        
+
         whenCloseSession();
-        
+
         thenServiceSessionIsClosed();
+    }
+
+    @Test
+    public void givenClientSessionIdWhenGetClientResponseQueueNameThenQueueNameFromUserSessionIsReturned() {
+        givenClientSessionId();
+        
+        whenGetClientResponseQueue();
+        
+        thenResponseQueueNameIsReturned();
+    }
+
+    private void thenResponseQueueNameIsReturned() {
+        assertThat(responseQueueName, equalTo(USER_RESPOSE_QUEUE_NAME));
+    }
+
+    private void whenGetClientResponseQueue() {
+        when(applicationSessionService.getSessionById(USER_SESSION_ID)).thenReturn(userSession);
+        responseQueueName = serviceManager.getClientResponseQueueName(USER_SESSION_ID);
+    }
+
+    private void givenClientSessionId() {
+        userSession = Mockito.mock(UserSession.class);
+        when(userSession.getId()).thenReturn(USER_SESSION_ID);
+        when(userSession.getResponseQueueName()).thenReturn(USER_RESPOSE_QUEUE_NAME);
     }
 
     private void thenServiceSessionIsClosed() {
