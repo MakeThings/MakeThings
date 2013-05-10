@@ -24,15 +24,20 @@ public class RequestHandlingTask implements Runnable {
 
     @Override
     public void run() {
-        // TODO: add exception handling
-        LOG.debug("Handling message: {}, from {}", message, requstQueueName);
-        JsonServiceRequest jsonRpcRequest = new JsonServiceRequest().withMessages(message.getBody());
-        JsonServiceResponse jsonRpcResponse = new JsonServiceResponse();
-        jsonRpcResponse.withClientSessionId(jsonRpcRequest.getClientSessionId());
-        jsonRpcResponse.withQueue(queue).withServiceManager(serviceManager);
-        jsonRpcHandler.handle(jsonRpcRequest, jsonRpcResponse);
-        deleteMessageFromQueue();
-        jsonRpcResponse.send();
+        try {
+            LOG.debug("Handling message: {}, from {}", message, requstQueueName);
+            JsonServiceRequest jsonRpcRequest = new JsonServiceRequest().withMessages(message.getBody());
+            JsonServiceResponse jsonRpcResponse = new JsonServiceResponse();
+            jsonRpcResponse.withClientSessionId(jsonRpcRequest.getClientSessionId());
+            jsonRpcResponse.withQueue(queue).withServiceManager(serviceManager);
+            jsonRpcHandler.handle(jsonRpcRequest, jsonRpcResponse);
+            deleteMessageFromQueue();
+            jsonRpcResponse.send();
+        }
+        catch (RuntimeException e) {
+            // TODO: add exception handling
+            LOG.error("Cannot handle message: {}, error: {}", message.toString(), e.getMessage(), e);
+        }
     }
 
     private void deleteMessageFromQueue() {

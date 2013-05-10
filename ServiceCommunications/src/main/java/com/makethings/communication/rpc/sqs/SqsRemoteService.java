@@ -22,8 +22,6 @@ public class SqsRemoteService extends AbstractRemoteService {
 
     private SqsQueue queue;
 
-    private ReceiveMessageRequest request;
-
     private Executor requestProcessingExecutor;
 
     private JsonRpcHandler jsonRpcHandler;
@@ -47,7 +45,7 @@ public class SqsRemoteService extends AbstractRemoteService {
         ServiceSession session = getSession();
         String queueName = session.getRequstQueueName();
 
-        request = new ReceiveMessageRequest().withQueueUrl(queueName);
+        ReceiveMessageRequest request = new ReceiveMessageRequest().withQueueUrl(queueName);
 
         while (isWorking() && !isStopSignalReceived()) {
             handleMessages(queue.receiveMessage(request));
