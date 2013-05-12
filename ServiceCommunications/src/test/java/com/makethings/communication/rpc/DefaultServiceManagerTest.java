@@ -21,6 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.makethings.communication.session.ApplicationSessionService;
 import com.makethings.communication.session.CreateSessionException;
+import com.makethings.communication.session.SessionException;
 import com.makethings.communication.session.service.DefaultServiceSession;
 import com.makethings.communication.session.service.ServiceSession;
 import com.makethings.communication.session.service.ServiceSessionDefinition;
@@ -93,10 +94,29 @@ public class DefaultServiceManagerTest {
     @Test
     public void givenClientSessionIdWhenGetClientResponseQueueNameThenQueueNameFromUserSessionIsReturned() {
         givenClientSessionId();
-        
+
         whenGetClientResponseQueue();
-        
+
         thenResponseQueueNameIsReturned();
+    }
+
+    @Test
+    public void givenGivenClientSessionIdAndWrongSessionWhenGetClientResponseQueueNameThenExceptionIsThrown() {
+        expectExceptionIfWrongSessionWhenGetClientResponseQueueName();
+
+        givenClientSessionId();
+
+        whenGetClientResponseQueueAndWrongSessionIsReturned();
+    }
+
+    private void whenGetClientResponseQueueAndWrongSessionIsReturned() {
+        ServiceSession wrongSession = Mockito.mock(ServiceSession.class);
+        when(applicationSessionService.getSessionById(USER_SESSION_ID)).thenReturn(wrongSession);
+        responseQueueName = serviceManager.getClientResponseQueueName(USER_SESSION_ID);
+    }
+
+    private void expectExceptionIfWrongSessionWhenGetClientResponseQueueName() {
+        exception.expect(SessionException.class);
     }
 
     private void thenResponseQueueNameIsReturned() {

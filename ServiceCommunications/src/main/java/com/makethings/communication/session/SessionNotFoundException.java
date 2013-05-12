@@ -1,8 +1,7 @@
 package com.makethings.communication.session;
 
-import com.makethings.commons.exeption.AppRuntimeExeption;
 
-public class SessionNotFoundException extends AppRuntimeExeption {
+public class SessionNotFoundException extends SessionException {
 
     private static final long serialVersionUID = -6718291583373487349L;
 

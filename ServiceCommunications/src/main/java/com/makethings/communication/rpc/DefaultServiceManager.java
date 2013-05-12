@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.makethings.communication.session.ApplicationSession;
 import com.makethings.communication.session.ApplicationSessionService;
 import com.makethings.communication.session.CreateSessionException;
+import com.makethings.communication.session.SessionException;
 import com.makethings.communication.session.SessionNotFoundException;
 import com.makethings.communication.session.service.ServiceSession;
 import com.makethings.communication.session.service.ServiceSessionDefinition;
@@ -51,7 +52,7 @@ public class DefaultServiceManager implements ServiceManager {
             return ((UserSession) appSession).getResponseQueueName();
         }
         else {
-            return null;
+            throw new SessionException("Wrong session returned when getting client response queue name, sessionId: " + clientSessionId);
         }
     }
 
