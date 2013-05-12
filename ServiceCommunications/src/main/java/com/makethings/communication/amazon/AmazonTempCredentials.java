@@ -15,4 +15,10 @@ public class AmazonTempCredentials implements AmazonServiceCredentials {
     public AWSCredentials getAwsCredentials() {
         return provider.getCredentials();
     }
+
+    @Override
+    public String toString() {
+        return "AmazonTempCredentials [provider=" + provider + "]";
+    }
+    
 }

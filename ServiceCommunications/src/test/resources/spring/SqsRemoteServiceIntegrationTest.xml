@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<import resource="classpath:/spring/test-service-session-def.ctx.xml" />
+	<import resource="classpath:/spring/test-app-session-service.ctx.xml" />
+	<import resource="classpath:/spring/test-service-session-factory.ctx.xml" />
+	<import resource="classpath:/spring/test-amazon-sts.cxt.xml" />
+
+	<bean id="sessionIdProvider"
+		class="com.makethings.communication.session.UUIDSessionIdProvider" />
+
+
+	<bean id="awsCredentials" class="com.amazonaws.auth.PropertiesCredentials">
+		<constructor-arg name="inputStream" value="classpath:/aws_my.properties" />
+	</bean>
+
+	<bean id="serviceManager" class="com.makethings.communication.rpc.DefaultServiceManager">
+		<property name="sessionService" ref="applicationSessionService" />
+	</bean>
+
+	<bean id="sqsQueue" class="com.makethings.communication.rpc.sqs.DefaultSqsQueue">
+		<property name="serviceFactoty" ref="amazonServiceFactory"></property>
+	</bean>
+
+	<bean id="amazonServiceFactory"
+		class="com.makethings.communication.amazon.DefaultAmazonServiceFactoty"></bean>
+
+	<bean id="sqsRemoteService" class="com.makethings.communication.rpc.sqs.SqsRemoteService">
+		<property name="sessionDefinition" ref="testServiceSessionDefinition" />
+		<property name="serviceManager" ref="serviceManager" />
+		<property name="queue" ref="sqsQueue" />
+		<property name="jsonRpcHandler" ref="jsonRpcHandler" />
+	</bean>
+
+	<bean id="jsonRpcHandler"
+		class="com.makethings.communication.rpc.json.DefaultJsonRpcHandler">
+		<property name="serviceInterfaceClass"
+			value="com.makethings.communication.rpc.json.TestIdeaService" />
+		<property name="service" ref="testIdeaService"></property>
+	</bean>
+	
+	<bean id="testIdeaService" class="org.mockito.Mockito"
+		factory-method="mock">
+		<constructor-arg index="0"
+			value="com.makethings.communication.rpc.json.TestIdeaService" />
+	</bean>
+
+</beans>

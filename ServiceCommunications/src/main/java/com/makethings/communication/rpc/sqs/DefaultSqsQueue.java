@@ -1,5 +1,7 @@
 package com.makethings.communication.rpc.sqs;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -14,12 +16,15 @@ import com.makethings.communication.rpc.QueueException;
 
 public class DefaultSqsQueue implements SqsQueue {
 
+    private final static Logger LOG = LoggerFactory.getLogger(DefaultSqsQueue.class);
+
     private AmazonServiceFactoty serviceFactory;
     private AWSCredentials credentials;
     private AmazonSQS sqsClient;
 
     @Override
     public void setAwsCredentials(AWSCredentials credentials) {
+        LOG.info("Populating AWS Credentials(AWSAccessKeyId: {})  to queue", credentials.getAWSAccessKeyId());
         this.credentials = credentials;
     }
 

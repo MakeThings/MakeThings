@@ -47,6 +47,7 @@ public class SqsRemoteService extends AbstractRemoteService {
 
         ReceiveMessageRequest request = new ReceiveMessageRequest().withQueueUrl(queueName);
 
+        LOG.info("Service {}, start reading messages, request: {}", getServiceName(), request);
         while (isWorking() && !isStopSignalReceived()) {
             handleMessages(queue.receiveMessage(request));
         }
