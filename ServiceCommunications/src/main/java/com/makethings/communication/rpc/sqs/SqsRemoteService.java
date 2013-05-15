@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
@@ -26,6 +27,8 @@ public class SqsRemoteService extends AbstractRemoteService {
 
     private JsonRpcHandler jsonRpcHandler;
 
+    private boolean createQueueOnStartup = false;
+
     public SqsRemoteService() {
         requestProcessingExecutor = Executors.newSingleThreadExecutor();
     }
@@ -38,6 +41,11 @@ public class SqsRemoteService extends AbstractRemoteService {
         QueueServiceCredentials queueServiceCredentials = getSession().getQueueServiceCredentials();
         AmazonServiceCredentials amazonSqsCredentials = (AmazonServiceCredentials) queueServiceCredentials;
         queue.setAwsCredentials(amazonSqsCredentials.getAwsCredentials());
+        
+        if (createQueueOnStartup) {
+            LOG.info("Creating service request queue: {} on startup", getSession().getRequstQueueName());
+            queue.createQueue(new CreateQueueRequest().withQueueName(getSession().getRequstQueueName()));
+        }
     }
 
     @Override
@@ -82,5 +90,10 @@ public class SqsRemoteService extends AbstractRemoteService {
 
     public void setJsonRpcHandler(JsonRpcHandler jsonRpcHandler) {
         this.jsonRpcHandler = jsonRpcHandler;
+    }
+
+    public void setCreateQueueOnStartup(boolean createQueueOnStartup) {
+        this.createQueueOnStartup = createQueueOnStartup;
+        
     }
 }

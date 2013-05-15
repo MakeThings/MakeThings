@@ -98,6 +98,7 @@ public abstract class AbstractRemoteService implements RemoteService {
     }
 
     public void stop() {
+        LOG.info("Stopping remote service: {}", getServiceName());
         if (isStarted()) {
             if (isWorking()) {
                 processingTask.stop();

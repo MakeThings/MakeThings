@@ -2,10 +2,11 @@ package com.makethings.communication.rpc.sqs;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -19,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
@@ -53,6 +55,7 @@ public class DefaultSqsQueueTest {
     private ReceiveMessageResult receiveMessageResult;
     private ReceiveMessageResult expectedReceiveMessageResult;
     private DeleteMessageRequest withReceiptHandle;
+    private CreateQueueRequest createQueueRequest;
 
     @Test
     public void givenMessageRequestWhenSendThenResultShouldBeReturned() {
@@ -105,6 +108,28 @@ public class DefaultSqsQueueTest {
         
         thenDeleteRequestIsPassedToSqsClient();
     }
+    
+    @Test
+    public void givenCreateQueueRequestWhenCreateQueueuThenItIsPassedToSqsClient() {
+        givenQueue();
+        givenCreateQueueRequest();
+        
+        whenCreateQueue();
+        
+        thenCreateQueueIsPassedToSqsClient();
+    }
+
+    private void thenCreateQueueIsPassedToSqsClient() {
+        verify(sqsClient).createQueue(createQueueRequest);
+    }
+
+    private void whenCreateQueue() {
+        sqsQueue.createQueue(createQueueRequest);
+    }
+
+    private void givenCreateQueueRequest() {
+        createQueueRequest = new CreateQueueRequest().withQueueName(QUEUE_NAME);
+    }
 
     private void thenDeleteRequestIsPassedToSqsClient() {
         Mockito.verify(sqsClient).deleteMessage(withReceiptHandle);
@@ -123,7 +148,7 @@ public class DefaultSqsQueueTest {
     }
 
     private void givenSqsClientWhenExceptionOccurs() {
-        Mockito.when(sqsClient.receiveMessage(receiveMessageRequest)).thenThrow(new AmazonServiceException("Some Error"));
+        when(sqsClient.receiveMessage(receiveMessageRequest)).thenThrow(new AmazonServiceException("Some Error"));
     }
 
     private void thenReceiveResultWasReceived() {
@@ -140,18 +165,18 @@ public class DefaultSqsQueueTest {
     }
 
     private void thenSendRequstIsPassedToSqsClient() {
-        Mockito.verify(sqsClient).sendMessage(Matchers.same(messageRequest));
+        verify(sqsClient).sendMessage(Matchers.same(messageRequest));
     }
 
     private void givenSqsClient() {
         expectedSendResult = new SendMessageResult();
-        Mockito.when(sqsClient.sendMessage(messageRequest)).thenReturn(expectedSendResult);
+        when(sqsClient.sendMessage(messageRequest)).thenReturn(expectedSendResult);
         expectedReceiveMessageResult = new ReceiveMessageResult();
-        Mockito.when(sqsClient.receiveMessage(receiveMessageRequest)).thenReturn(expectedReceiveMessageResult);
+        when(sqsClient.receiveMessage(receiveMessageRequest)).thenReturn(expectedReceiveMessageResult);
     }
 
     private void thenSendResultWasCreated() {
-        Assert.assertThat(sendResult, CoreMatchers.notNullValue());
+        assertThat(sendResult, notNullValue());
     }
 
     private void whenSendMessageRequest() {
@@ -163,6 +188,7 @@ public class DefaultSqsQueueTest {
     }
 
     private void givenQueue() {
+        assertNotNull(sqsQueue);
         sqsQueue.setAwsCredentials(credentials);
     }
 

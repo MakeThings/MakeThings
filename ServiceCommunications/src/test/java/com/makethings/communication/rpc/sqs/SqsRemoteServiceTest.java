@@ -24,6 +24,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
@@ -52,6 +53,7 @@ public class SqsRemoteServiceTest {
 
     private static final ReceiveMessageResult EMPTY_MESSAGE = new ReceiveMessageResult();
     private static final String CLIENT_SESSION_ID = "200";
+    private static final String QUEUE_NAME = "ServiceReqQueue";
 
     @Autowired
     private SqsQueue queue;
@@ -170,6 +172,25 @@ public class SqsRemoteServiceTest {
         whenServiceStart();
 
         thenResponseIsSent();
+    }
+
+    @Test
+    @DirtiesContext
+    public void givenCreateQueueOnStartupIsSetWhenIninThenQueueShouldBeCreatedIfNotExist() {
+        givenRemoteServiceWithCreateQueueOnStartupIsSet();
+
+        whenServiceInit();
+
+        thenRequestToCreateQueueIsSent();
+    }
+
+    private void thenRequestToCreateQueueIsSent() {
+        CreateQueueRequest expectedRequest = new CreateQueueRequest(QUEUE_NAME);
+        verify(queue).createQueue(expectedRequest);
+    }
+
+    private void givenRemoteServiceWithCreateQueueOnStartupIsSet() {
+        remoteService.setCreateQueueOnStartup(true);
     }
 
     private void givenClientResponseQueueName() {

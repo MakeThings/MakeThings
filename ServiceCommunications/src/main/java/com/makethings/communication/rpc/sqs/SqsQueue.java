@@ -1,6 +1,8 @@
 package com.makethings.communication.rpc.sqs;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import com.amazonaws.services.sqs.model.CreateQueueResult;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
@@ -18,5 +20,9 @@ public interface SqsQueue extends Queue {
     ReceiveMessageResult receiveMessage(ReceiveMessageRequest receiveMessageRequest) throws QueueException;
 
     void deleteMessage(DeleteMessageRequest deleteMessageRequest);
+    
+    CreateQueueResult createQueue(CreateQueueRequest request) throws QueueException;
+    
+    
     
 }

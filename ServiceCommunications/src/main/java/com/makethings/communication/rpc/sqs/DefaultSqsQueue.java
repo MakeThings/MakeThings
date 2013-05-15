@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Required;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import com.amazonaws.services.sqs.model.CreateQueueResult;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
@@ -66,6 +68,16 @@ public class DefaultSqsQueue implements SqsQueue {
             sqsClient = serviceFactory.createAmazonSqs(credentials);
         }
         return sqsClient;
+    }
+
+    @Override
+    public CreateQueueResult createQueue(CreateQueueRequest request) throws QueueException {
+        try {
+            return getSqsClient().createQueue(request);
+        }
+        catch (RuntimeException e) {
+            throw new QueueException("Error when create queue: " + request.toString(), e);
+        }
     }
 
     public AmazonServiceFactoty getServiceFactoty() {
