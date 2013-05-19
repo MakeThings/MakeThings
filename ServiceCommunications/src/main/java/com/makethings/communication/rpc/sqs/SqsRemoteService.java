@@ -29,6 +29,8 @@ public class SqsRemoteService extends AbstractRemoteService {
 
     private boolean createQueueOnStartup = false;
 
+    private int waitForMessagesSeconds = 2;
+
     public SqsRemoteService() {
         requestProcessingExecutor = Executors.newSingleThreadExecutor();
     }
@@ -41,7 +43,7 @@ public class SqsRemoteService extends AbstractRemoteService {
         QueueServiceCredentials queueServiceCredentials = getSession().getQueueServiceCredentials();
         AmazonServiceCredentials amazonSqsCredentials = (AmazonServiceCredentials) queueServiceCredentials;
         queue.setAwsCredentials(amazonSqsCredentials.getAwsCredentials());
-        
+
         if (createQueueOnStartup) {
             LOG.info("Creating service request queue: {} on startup", getSession().getRequstQueueName());
             queue.createQueue(new CreateQueueRequest().withQueueName(getSession().getRequstQueueName()));
@@ -53,7 +55,7 @@ public class SqsRemoteService extends AbstractRemoteService {
         ServiceSession session = getSession();
         String queueName = session.getRequstQueueName();
 
-        ReceiveMessageRequest request = new ReceiveMessageRequest().withQueueUrl(queueName);
+        ReceiveMessageRequest request = new ReceiveMessageRequest().withQueueUrl(queueName).withWaitTimeSeconds(waitForMessagesSeconds);
 
         LOG.info("Service {}, start reading messages, request: {}", getServiceName(), request);
         while (isWorking() && !isStopSignalReceived()) {
@@ -94,6 +96,6 @@ public class SqsRemoteService extends AbstractRemoteService {
 
     public void setCreateQueueOnStartup(boolean createQueueOnStartup) {
         this.createQueueOnStartup = createQueueOnStartup;
-        
+
     }
 }
