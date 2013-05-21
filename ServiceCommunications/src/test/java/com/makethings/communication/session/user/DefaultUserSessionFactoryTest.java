@@ -3,7 +3,6 @@ package com.makethings.communication.session.user;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,11 +36,29 @@ public class DefaultUserSessionFactoryTest {
 
         thenResponseQueueNameIsPopulatedToTheSession();
     }
+    
+    @Test
+    public void givenClientTypeWhenCreateSessionThenClientTypeIsPopulatedToTheSession() {
+        givenSessionDefinition();
+        
+        whenCreateUserSession();
+        
+        thenClientTypeIsPopulatedToSession();
+    }
+
+    private void thenClientTypeIsPopulatedToSession() {
+        assertThat(userSession().getClientType(), CoreMatchers.is(ClientType.SERVICE));
+    
+    }
 
     private void thenResponseQueueNameIsPopulatedToTheSession() {
+        assertThat(userSession().getResponseQueueName(), CoreMatchers.is(CLIENT_RESPONSE_QUEUE_NAME));
+    }
+
+    private UserSession userSession() {
         assertThat(session, CoreMatchers.instanceOf(UserSession.class));
         UserSession userSession = (UserSession) session;
-        assertThat(userSession.getResponseQueueName(), CoreMatchers.is(CLIENT_RESPONSE_QUEUE_NAME));
+        return userSession;
     }
 
     private void whenCreateUserSession() {
@@ -53,5 +70,6 @@ public class DefaultUserSessionFactoryTest {
         definition = new DefaultUserSessionDefinition();
         definition.setClientResponseQueueName(responseQueueName);
         definition.setUserSesssionFactory(userSesssionFactory);
+        definition.setClientType(ClientType.SERVICE);
     }
 }

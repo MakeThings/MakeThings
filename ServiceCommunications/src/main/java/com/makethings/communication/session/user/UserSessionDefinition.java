@@ -5,4 +5,6 @@ import com.makethings.communication.session.ApplicationSessionDefinition;
 
 public interface UserSessionDefinition extends ApplicationSessionDefinition {
     ClientResponseQueueName getClientResponseQueueName();
+
+    ClientType getClientType();
 }

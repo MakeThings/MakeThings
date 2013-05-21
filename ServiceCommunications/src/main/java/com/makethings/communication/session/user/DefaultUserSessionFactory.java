@@ -18,6 +18,7 @@ public class DefaultUserSessionFactory implements ApplicationSessionFactory {
         DefaultUserSession session = new DefaultUserSession();
         UserSessionDefinition userSessionDefinition = (UserSessionDefinition) sessionDef;
         session.setResponseQueueName(userSessionDefinition.getClientResponseQueueName().getClientResponseQueueName());
+        session.setClientType(userSessionDefinition.getClientType());
         return session;
     }
 }

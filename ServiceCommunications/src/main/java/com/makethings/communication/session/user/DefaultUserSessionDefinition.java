@@ -1,5 +1,7 @@
 package com.makethings.communication.session.user;
 
+import org.springframework.core.style.ToStringCreator;
+
 import com.makethings.communication.queue.ClientResponseQueueName;
 import com.makethings.communication.session.ApplicationSessionFactory;
 
@@ -8,7 +10,9 @@ public class DefaultUserSessionDefinition implements UserSessionDefinition {
     private ClientResponseQueueName responseQueueName;
 
     private DefaultUserSessionFactory userSesssionFactory;
-    
+
+    private ClientType clientType;
+
     @Override
     public ApplicationSessionFactory getSessionFactory() {
         return userSesssionFactory;
@@ -17,7 +21,7 @@ public class DefaultUserSessionDefinition implements UserSessionDefinition {
     public void setClientResponseQueueName(ClientResponseQueueName responseQueueName) {
         this.responseQueueName = responseQueueName;
     }
-    
+
     public ClientResponseQueueName getClientResponseQueueName() {
         return responseQueueName;
     }
@@ -31,7 +35,17 @@ public class DefaultUserSessionDefinition implements UserSessionDefinition {
     }
 
     @Override
-    public String toString() {
-        return "DefaultUserSessionDefinition [responseQueueName=" + responseQueueName + "]";
+    public ClientType getClientType() {
+        return clientType;
     }
+
+    public void setClientType(ClientType clientType) {
+        this.clientType = clientType;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this).append("responseQueueName", responseQueueName).append("clientType", clientType).toString();
+    }
+
 }

@@ -4,4 +4,6 @@ import com.makethings.communication.session.ApplicationSession;
 
 public interface UserSession extends ApplicationSession {
     String getResponseQueueName();
+
+    ClientType getClientType();
 }
