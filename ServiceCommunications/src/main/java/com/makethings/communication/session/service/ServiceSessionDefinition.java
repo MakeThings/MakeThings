@@ -1,6 +1,7 @@
 package com.makethings.communication.session.service;
 
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.core.style.ToStringCreator;
 
 import com.makethings.communication.queue.ServiceRequestQueueName;
 import com.makethings.communication.session.ApplicationSessionDefinition;
@@ -33,7 +34,8 @@ public abstract class ServiceSessionDefinition implements ApplicationSessionDefi
 
     @Override
     public String toString() {
-        return "ServiceSessionDefinition [requestQueueName=" + requestQueueName + ", serviceName=" + serviceName + "]";
+        return new ToStringCreator(this).append("requestQueueName", requestQueueName.getName())
+                .append("serviceName", serviceName.getName()).toString();
     }
 
 }

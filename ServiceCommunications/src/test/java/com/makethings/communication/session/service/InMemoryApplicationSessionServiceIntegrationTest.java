@@ -49,7 +49,7 @@ public class InMemoryApplicationSessionServiceIntegrationTest {
 
     private void thenCommonServiceSessionParamPopulated(ServiceSession serviceSession) {
         assertThat(serviceSession.getId(), notNullValue());
-        assertThat(serviceSession.getRequstQueueName(), equalTo("ServiceReqQueue"));
+        assertThat(serviceSession.getRequestQueueName(), equalTo("ServiceReqQueue"));
         assertThat(serviceSession.getServiceName(), equalTo("TestService"));
     }
 

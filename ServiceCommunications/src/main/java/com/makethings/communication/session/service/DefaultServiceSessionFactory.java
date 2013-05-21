@@ -19,7 +19,10 @@ public class DefaultServiceSessionFactory implements ApplicationSessionFactory {
     private QueueServiceCredentialsProvider<? extends QueueServiceCredentials> queueServiceCredentialsProvider;
 
     public ApplicationSession createSession(ApplicationSessionDefinition sessionDef) {
-        DefaultServiceSession session = new DefaultServiceSession((ServiceSessionDefinition) sessionDef);
+        ServiceSessionDefinition serviceDef = (ServiceSessionDefinition) sessionDef;
+        DefaultServiceSession session = new DefaultServiceSession();
+        session.setRequestQueueName(serviceDef.getRequestQueueName().getName());
+        session.setServiceName(serviceDef.getServiceName().getName());
         session.setId(sessionIdProvider.getSessionId());
         QueueServiceCredentials queueServiceCredentials = queueServiceCredentialsProvider.getCredentials();
         LOG.info("Populating queue service credentials: {} to session: {}", queueServiceCredentials, session);

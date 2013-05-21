@@ -5,9 +5,10 @@
 
 	<bean id="testServiceSession"
 		class="com.makethings.communication.session.service.DefaultServiceSession">
-		<constructor-arg ref="testServiceSessionDefinition" />
 		<property name="id" value="12345" />
 		<property name="queueServiceCredentials" ref="amazonServiceCredentials" />
+		<property name="requestQueueName" value="ServiceReqQueue" />
+		<property name="serviceName" value="TestService" />
 	</bean>
 
 	<bean id="amazonServiceCredentials" class="org.mockito.Mockito"

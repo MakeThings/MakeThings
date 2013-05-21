@@ -1,22 +1,20 @@
 package com.makethings.communication.session.service;
 
 import com.makethings.communication.queue.QueueServiceCredentials;
-import com.makethings.communication.queue.ServiceRequestQueueName;
 
 public class DefaultServiceSession implements ServiceSession {
 
     private String id;
-    private final ServiceRequestQueueName requestQueueName;
-    private final ServiceName serviceName;
+    private String requestQueueName;
+    private String serviceName;
     private QueueServiceCredentials queueServiceCredentials;
 
-    public DefaultServiceSession(ServiceSessionDefinition sessionDef) {
-        requestQueueName = sessionDef.getRequestQueueName();
-        serviceName = sessionDef.getServiceName();
+    public String getRequestQueueName() {
+        return requestQueueName;
     }
 
-    public String getRequstQueueName() {
-        return requestQueueName.getName();
+    public void setRequestQueueName(String requestQueueName) {
+        this.requestQueueName = requestQueueName;
     }
 
     public String getId() {
@@ -28,7 +26,11 @@ public class DefaultServiceSession implements ServiceSession {
     }
 
     public String getServiceName() {
-        return serviceName.getName();
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public QueueServiceCredentials getQueueServiceCredentials() {

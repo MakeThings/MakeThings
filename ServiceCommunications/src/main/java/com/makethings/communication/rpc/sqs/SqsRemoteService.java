@@ -45,15 +45,15 @@ public class SqsRemoteService extends AbstractRemoteService {
         queue.setAwsCredentials(amazonSqsCredentials.getAwsCredentials());
 
         if (createQueueOnStartup) {
-            LOG.info("Creating service request queue: {} on startup", getSession().getRequstQueueName());
-            queue.createQueue(new CreateQueueRequest().withQueueName(getSession().getRequstQueueName()));
+            LOG.info("Creating service request queue: {} on startup", getSession().getRequestQueueName());
+            queue.createQueue(new CreateQueueRequest().withQueueName(getSession().getRequestQueueName()));
         }
     }
 
     @Override
     protected void processing() {
         ServiceSession session = getSession();
-        String queueName = session.getRequstQueueName();
+        String queueName = session.getRequestQueueName();
 
         ReceiveMessageRequest request = new ReceiveMessageRequest().withQueueUrl(queueName).withWaitTimeSeconds(waitForMessagesSeconds);
 
@@ -65,7 +65,7 @@ public class SqsRemoteService extends AbstractRemoteService {
 
     protected void handleMessages(ReceiveMessageResult receivedMessages) {
         List<Message> messages = receivedMessages.getMessages();
-        LOG.debug("Recevied messages {}, from {}", receivedMessages, getSession().getRequstQueueName());
+        LOG.debug("Recevied messages {}, from {}", receivedMessages, getSession().getRequestQueueName());
         for (Message message : messages) {
             runMessageHandingTask(message);
         }
@@ -74,7 +74,7 @@ public class SqsRemoteService extends AbstractRemoteService {
     private void runMessageHandingTask(Message m) {
         LOG.debug("Executing handler task for message {}", m);
         new RequestHandlingTask().withMessage(m).withHandler(jsonRpcHandler).withQueue(queue)
-                .withRequestQueueName(getSession().getRequstQueueName()).withServiceManager(getServiceManager())
+                .withRequestQueueName(getSession().getRequestQueueName()).withServiceManager(getServiceManager())
                 .execute(requestProcessingExecutor);
     }
 

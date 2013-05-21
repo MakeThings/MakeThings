@@ -108,7 +108,7 @@ public class DefaultServiceSessionFactoryTest {
     }
 
     private void thenRequestQueueNameIs(ServiceSession session, String queueName) {
-        assertThat(session.getRequstQueueName(), equalTo(queueName));
+        assertThat(session.getRequestQueueName(), equalTo(queueName));
     }
 
     private void givenServiceSessionDefinition() {

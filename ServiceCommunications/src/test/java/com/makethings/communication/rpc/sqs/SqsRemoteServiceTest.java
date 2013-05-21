@@ -208,7 +208,7 @@ public class SqsRemoteServiceTest {
     }
 
     private void thenMessageIsDeletedFromQueue() {
-        DeleteMessageRequest req = new DeleteMessageRequest().withQueueUrl(serviceSession.getRequstQueueName()).withReceiptHandle(
+        DeleteMessageRequest req = new DeleteMessageRequest().withQueueUrl(serviceSession.getRequestQueueName()).withReceiptHandle(
                 lastMessage.getReceiptHandle());
         verify(queue, timeout(1000)).deleteMessage(eq(req));
     }

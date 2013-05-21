@@ -4,7 +4,7 @@ import com.makethings.communication.session.ApplicationSession;
 
 public interface ServiceSession extends ApplicationSession {
 
-    String getRequstQueueName();
+    String getRequestQueueName();
 
     String getServiceName();
 

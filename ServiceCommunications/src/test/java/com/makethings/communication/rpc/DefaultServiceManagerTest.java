@@ -143,7 +143,7 @@ public class DefaultServiceManagerTest {
     }
 
     private void givenSessionId() {
-        DefaultServiceSession tmpSession = new DefaultServiceSession(serviceSessionDefinition);
+        DefaultServiceSession tmpSession = new DefaultServiceSession();
         tmpSession.setId(SERVICE_SESSION_ID);
         openedSession = tmpSession;
     }
