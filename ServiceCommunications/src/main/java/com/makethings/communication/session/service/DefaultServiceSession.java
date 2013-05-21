@@ -1,13 +1,11 @@
 package com.makethings.communication.session.service;
 
-import com.makethings.communication.queue.QueueServiceCredentials;
+import com.makethings.communication.session.AbstractApplicationSession;
 
-public class DefaultServiceSession implements ServiceSession {
+public class DefaultServiceSession extends AbstractApplicationSession implements ServiceSession {
 
-    private String id;
     private String requestQueueName;
     private String serviceName;
-    private QueueServiceCredentials queueServiceCredentials;
 
     public String getRequestQueueName() {
         return requestQueueName;
@@ -15,14 +13,6 @@ public class DefaultServiceSession implements ServiceSession {
 
     public void setRequestQueueName(String requestQueueName) {
         this.requestQueueName = requestQueueName;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getServiceName() {
@@ -33,17 +23,9 @@ public class DefaultServiceSession implements ServiceSession {
         this.serviceName = serviceName;
     }
 
-    public QueueServiceCredentials getQueueServiceCredentials() {
-        return queueServiceCredentials;
-    }
-
-    public void setQueueServiceCredentials(QueueServiceCredentials credentials) {
-        this.queueServiceCredentials = credentials;
-    }
-
     @Override
     public String toString() {
-        return "DefaultServiceSession [id=" + id + ", requestQueueName=" + requestQueueName + ", serviceName=" + serviceName + "]";
+        return "DefaultServiceSession [id=" + getId() + ", requestQueueName=" + requestQueueName + ", serviceName=" + serviceName + "]";
     }
-  
+
 }

@@ -1,22 +1,12 @@
 package com.makethings.communication.session.user;
 
 import com.makethings.communication.queue.QueueServiceCredentials;
+import com.makethings.communication.session.AbstractApplicationSession;
 
-public class DefaultUserSession implements UserSession {
+public class DefaultUserSession extends AbstractApplicationSession implements UserSession {
 
     private String responseQueueName;
     private ClientType clientType;
-
-    @Override
-    public String getId() {
-        return null;
-    }
-
-    @Override
-    public QueueServiceCredentials getQueueServiceCredentials() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     @Override
     public String getResponseQueueName() {
