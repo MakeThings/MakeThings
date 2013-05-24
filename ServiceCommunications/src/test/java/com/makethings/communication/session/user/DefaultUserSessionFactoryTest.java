@@ -1,9 +1,10 @@
 package com.makethings.communication.session.user;
 
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +13,8 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.makethings.communication.queue.ClientResponseQueueName;
+import com.makethings.communication.queue.QueueServiceCredentials;
+import com.makethings.communication.queue.QueueServiceCredentialsProvider;
 import com.makethings.communication.session.ApplicationSession;
 import com.makethings.communication.session.SessionIdProvider;
 import com.makethings.communication.testsupport.SessionIdProviderMockHelper;
@@ -29,12 +32,17 @@ public class DefaultUserSessionFactoryTest {
     private SessionIdProviderMockHelper sessionIdProviderMockHelper;
     @Mock
     private SessionIdProvider idProvider;
+    @Mock
+    private QueueServiceCredentialsProvider<QueueServiceCredentials> credentialsProvider;
+    @Mock
+    private QueueServiceCredentials credentials;
 
     @Before
     public void setUp() {
         sessionIdProviderMockHelper = new SessionIdProviderMockHelper(idProvider);
         userSesssionFactory = new DefaultUserSessionFactory();
         userSesssionFactory.setSessionIdProvider(idProvider);
+        userSesssionFactory.setQueueServiceCredentialsProvider(credentialsProvider);
     }
 
     @Test
@@ -62,6 +70,24 @@ public class DefaultUserSessionFactoryTest {
         whenCreateUserSession();
 
         thenSessionIdIsPopulated();
+    }
+
+    @Test
+    public void givenUserSessionDefThenQueueServiceCredentialsIsPopulated() {
+        givenSessionDefinition();
+        givenCredentialsProvider();
+
+        whenCreateUserSession();
+
+        thenCredentialsIsPopulated();
+    }
+
+    private void thenCredentialsIsPopulated() {
+        assertThat(session.getQueueServiceCredentials(), sameInstance(credentials));
+    }
+
+    private void givenCredentialsProvider() {
+        when(credentialsProvider.getCredentials()).thenReturn(credentials);
     }
 
     private void thenSessionIdIsPopulated() {
