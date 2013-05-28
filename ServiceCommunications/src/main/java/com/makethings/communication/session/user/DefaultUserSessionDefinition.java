@@ -45,7 +45,11 @@ public class DefaultUserSessionDefinition implements UserSessionDefinition {
 
     @Override
     public String toString() {
-        return new ToStringCreator(this).append("responseQueueName", responseQueueName.getClientResponseQueueName()).append("clientType", clientType).toString();
+        return new ToStringCreator(this).append("responseQueueName", responseQueueName()).append("clientType", clientType).toString();
+    }
+
+    private String responseQueueName() {
+        return responseQueueName != null ? responseQueueName.getClientResponseQueueName() : null;
     }
 
 }
