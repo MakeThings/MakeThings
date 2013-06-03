@@ -7,4 +7,6 @@ public interface ClientManager {
 
     UserSession openClientSession(UserSessionDefinition same);
 
+    String getServiceRequestQueueName(String remoteServiceName);
+
 }
