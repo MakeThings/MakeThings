@@ -5,6 +5,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Method;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +16,10 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.makethings.communication.rpc.ClientManager;
+import com.makethings.communication.rpc.json.JsonClientMarshaler;
+import com.makethings.communication.rpc.json.TestIdeaService;
 import com.makethings.communication.session.user.DefaultUserSessionDefinition;
 import com.makethings.communication.session.user.UserSession;
 
@@ -22,7 +27,7 @@ import com.makethings.communication.session.user.UserSession;
 public class SqsRemoteServiceClientTest {
 
     private static final String REMOTE_SERVICE_NAME = "SomeRemoteService";
-    private static final Object REQUEST_QUEUE_NAME = null;
+    private static final String REQUEST_QUEUE_NAME = "RemoteServiceQueue";
     private static final String CLIENT_REQUEST_QUEUE_NAME = "ClientRequestQueueName";
     private static final String CLIENT_SESSION_ID = "ClientSessionId";
     private DefaultUserSessionDefinition sessionDefinition;
@@ -33,16 +38,30 @@ public class SqsRemoteServiceClientTest {
 
     @Mock
     private ClientManager clientManager;
-    
+
     @Mock
     private SqsQueue queue;
 
+    @Mock
+    private JsonClientMarshaler clientMarshaler;
+
     @Before
-    public void setUp() {
+    public void setUp() throws SecurityException, NoSuchMethodException {
         serviceClient = new SqsRemoteServiceClient();
         serviceClient.setClientManaget(clientManager);
         serviceClient.setQueue(queue);
-        
+        serviceClient.setJsonClientMarshaler(clientMarshaler);
+        givenClientManager();
+        givenJsonMarchaler();
+    }
+
+    private void givenJsonMarchaler() throws SecurityException, NoSuchMethodException {
+        Method serviceMethod = TestIdeaService.class.getDeclaredMethod("createNewIdea", String.class);
+        when(clientMarshaler.marshalClientRequest(serviceMethod, "foo")).thenReturn("foo");
+    }
+
+    private void givenClientManager() {
+        when(clientManager.getServiceRequestQueueName(REMOTE_SERVICE_NAME)).thenReturn(REQUEST_QUEUE_NAME);
     }
 
     @Test
@@ -62,14 +81,38 @@ public class SqsRemoteServiceClientTest {
 
         thenRequestQueueNameIsDerived();
     }
-    
+
     @Test
     public void givenClientRequestQueueNameWhenInitThenQueueIsCreated() {
         givenUserSessionDefinition();
 
         whenInit();
-        
+
         thenClientRequestQueueNameIsCreated();
+    }
+
+    @Test
+    public void givenMethodNameAndArgsWhenInvokeThenRequestIsSent() throws SecurityException, NoSuchMethodException {
+        givenInitedClient();
+
+        whenInvoke();
+
+        thenRequstIsSent();
+    }
+
+    private void thenRequstIsSent() {
+        verify(queue).sendMessage(
+                Mockito.eq(new SendMessageRequest().withQueueUrl(REQUEST_QUEUE_NAME).withMessageBody(
+                        "{\"SId\":\"ClientSessionId\",\"Req\":\"foo\"}")));
+    }
+
+    private void whenInvoke() throws SecurityException, NoSuchMethodException {
+        serviceClient.invoke(TestIdeaService.class.getDeclaredMethod("createNewIdea", String.class), "foo");
+    }
+
+    private void givenInitedClient() {
+        givenUserSessionDefinition();
+        serviceClient.init();
     }
 
     private void thenClientRequestQueueNameIsCreated() {
@@ -97,7 +140,7 @@ public class SqsRemoteServiceClientTest {
     private void givenUserSessionDefinition() {
         sessionDefinition = new DefaultUserSessionDefinition();
         serviceClient.setUserSessionDefinition(sessionDefinition);
-        
+
         givenUserSession();
         givenRemoteServiceName();
 
