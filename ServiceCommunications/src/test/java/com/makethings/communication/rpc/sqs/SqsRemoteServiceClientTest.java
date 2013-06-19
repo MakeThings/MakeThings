@@ -19,6 +19,7 @@ import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.makethings.communication.rpc.ClientManager;
 import com.makethings.communication.rpc.json.JsonClientMarshaler;
+import com.makethings.communication.rpc.json.JsonClientRequest;
 import com.makethings.communication.rpc.json.TestIdeaService;
 import com.makethings.communication.session.user.DefaultUserSessionDefinition;
 import com.makethings.communication.session.user.UserSession;
@@ -57,7 +58,7 @@ public class SqsRemoteServiceClientTest {
 
     private void givenJsonMarchaler() throws SecurityException, NoSuchMethodException {
         Method serviceMethod = TestIdeaService.class.getDeclaredMethod("createNewIdea", String.class);
-        when(clientMarshaler.marshalClientRequest(serviceMethod, "foo")).thenReturn("foo");
+        when(clientMarshaler.marshalClientRequest(serviceMethod, "foo")).thenReturn(new JsonClientRequest("foo"));
     }
 
     private void givenClientManager() {
@@ -101,9 +102,7 @@ public class SqsRemoteServiceClientTest {
     }
 
     private void thenRequstIsSent() {
-        verify(queue).sendMessage(
-                Mockito.eq(new SendMessageRequest().withQueueUrl(REQUEST_QUEUE_NAME).withMessageBody(
-                        "{\"SId\":\"ClientSessionId\",\"Req\":\"foo\"}")));
+        verify(queue).sendMessage(Mockito.eq(new SendMessageRequest().withQueueUrl(REQUEST_QUEUE_NAME).withMessageBody("foo")));
     }
 
     private void whenInvoke() throws SecurityException, NoSuchMethodException {

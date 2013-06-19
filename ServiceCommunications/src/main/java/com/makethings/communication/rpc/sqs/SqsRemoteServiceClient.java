@@ -7,26 +7,25 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.makethings.communication.rpc.ClientManager;
 import com.makethings.communication.rpc.RemoteServiceClient;
 import com.makethings.communication.rpc.json.JsonClientMarshaler;
+import com.makethings.communication.rpc.json.JsonClientRequest;
 import com.makethings.communication.session.user.UserSession;
 import com.makethings.communication.session.user.UserSessionDefinition;
 
 public class SqsRemoteServiceClient implements RemoteServiceClient {
 
     private final static Logger LOG = LoggerFactory.getLogger(SqsRemoteServiceClient.class);
-    
+
     private ClientManager clientManager;
     private UserSessionDefinition sessionDefinition;
     private UserSession session;
     private String remoteServiceName;
     private String requestQueueName;
     private SqsQueue queue;
-    private JsonClientMarshaler jsonClientMarshaler; 
+    private JsonClientMarshaler jsonClientMarshaler;
 
     public void init() {
         LOG.info("Initialising Remote Service Client");
@@ -38,13 +37,9 @@ public class SqsRemoteServiceClient implements RemoteServiceClient {
     }
 
     public void invoke(Method declaredMethod, Object... args) {
-        ObjectMapper mapper = new ObjectMapper();
-        String clientRequest = jsonClientMarshaler.marshalClientRequest(declaredMethod, args);
-        ObjectNode requestNode = JsonNodeFactory.instance.objectNode().objectNode();
-        requestNode.put("SId", session.getId());
-        requestNode.put("Req", clientRequest);
-        
-        queue.sendMessage(new SendMessageRequest(requestQueueName, requestNode.toString()));
+        JsonClientRequest request = jsonClientMarshaler.marshalClientRequest(declaredMethod, args);
+        SendMessageResult sendMessageResult = queue.sendMessage(new SendMessageRequest(requestQueueName, request.getMessage()));
+
     }
 
     public void setClientManaget(ClientManager clientManager) {
@@ -78,5 +73,5 @@ public class SqsRemoteServiceClient implements RemoteServiceClient {
     public void setJsonClientMarshaler(JsonClientMarshaler jsonClientMarshaler) {
         this.jsonClientMarshaler = jsonClientMarshaler;
     }
-    
+
 }

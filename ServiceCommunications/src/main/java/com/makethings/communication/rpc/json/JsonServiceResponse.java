@@ -65,7 +65,7 @@ public class JsonServiceResponse {
         String rpcMessage = rpcOs.toString();
         try {
             JsonNode rpcJsonNode = mapper.readTree(rpcMessage);
-            ObjectNode responseNode = JsonNodeFactory.instance.objectNode().objectNode();
+            ObjectNode responseNode = JsonNodeFactory.instance.objectNode();
             responseNode.put("Res", rpcJsonNode);
             return responseNode.toString();
         }
