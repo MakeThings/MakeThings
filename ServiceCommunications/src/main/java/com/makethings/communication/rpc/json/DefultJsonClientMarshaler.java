@@ -3,6 +3,7 @@ package com.makethings.communication.rpc.json;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,8 +25,9 @@ public class DefultJsonClientMarshaler implements JsonClientMarshaler {
         ObjectNode requestNode = JsonNodeFactory.instance.objectNode();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Object arguments = ReflectionUtil.parseArguments(method, args, true);
+        UUID requestId = UUID.randomUUID();
         try {
-            jsonRpcClient.writeRequest(method.getName(), arguments, outputStream, "10");
+            jsonRpcClient.writeRequest(method.getName(), arguments, outputStream, requestId.toString());
         }
         catch (IOException e) {
             // TODO Auto-generated catch block
@@ -42,7 +44,7 @@ public class DefultJsonClientMarshaler implements JsonClientMarshaler {
         catch (IOException e) {
             e.printStackTrace();
         }
-        JsonClientRequest result = new JsonClientRequest(requestNode.toString());
+        JsonClientRequest result = new JsonClientRequest(requestNode.toString(), requestId.toString());
         return result;
     }
 

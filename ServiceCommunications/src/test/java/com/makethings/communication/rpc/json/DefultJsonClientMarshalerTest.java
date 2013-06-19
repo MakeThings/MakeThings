@@ -38,6 +38,18 @@ public class DefultJsonClientMarshalerTest {
         whenMarshalRequest();
         thenClientRequestHasSessionId();
     }
+    
+    @Test
+    public void marshalRequestId() throws SecurityException, NoSuchMethodException {
+        givenMethodNameAndArguments();
+        whenMarshalRequest();
+        thenClientRequestHasId();
+    }
+
+    private void thenClientRequestHasId() {
+        JsonAsserter json = JsonAssert.with(result.getMessage());
+        json.assertThat("$.Req.id", equalTo(result.getRequestId()));
+    }
 
     private void thenClientRequestHasSessionId() {
         JsonAsserter json = JsonAssert.with(result.getMessage());

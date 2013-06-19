@@ -31,6 +31,7 @@ public class SqsRemoteServiceClientTest {
     private static final String REQUEST_QUEUE_NAME = "RemoteServiceQueue";
     private static final String CLIENT_REQUEST_QUEUE_NAME = "ClientRequestQueueName";
     private static final String CLIENT_SESSION_ID = "ClientSessionId";
+    private static final String REQUEST_ID = "RequestId";
     private DefaultUserSessionDefinition sessionDefinition;
     private SqsRemoteServiceClient serviceClient;
 
@@ -58,7 +59,7 @@ public class SqsRemoteServiceClientTest {
 
     private void givenJsonMarchaler() throws SecurityException, NoSuchMethodException {
         Method serviceMethod = TestIdeaService.class.getDeclaredMethod("createNewIdea", String.class);
-        when(clientMarshaler.marshalClientRequest(CLIENT_SESSION_ID, serviceMethod, "foo")).thenReturn(new JsonClientRequest("foo"));
+        when(clientMarshaler.marshalClientRequest(CLIENT_SESSION_ID, serviceMethod, "foo")).thenReturn(new JsonClientRequest("foo", REQUEST_ID));
     }
 
     private void givenClientManager() {
