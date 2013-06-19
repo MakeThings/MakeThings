@@ -37,7 +37,7 @@ public class SqsRemoteServiceClient implements RemoteServiceClient {
     }
 
     public void invoke(Method declaredMethod, Object... args) {
-        JsonClientRequest request = jsonClientMarshaler.marshalClientRequest(declaredMethod, args);
+        JsonClientRequest request = jsonClientMarshaler.marshalClientRequest(session.getId(), declaredMethod, args);
         SendMessageResult sendMessageResult = queue.sendMessage(new SendMessageRequest(requestQueueName, request.getMessage()));
 
     }

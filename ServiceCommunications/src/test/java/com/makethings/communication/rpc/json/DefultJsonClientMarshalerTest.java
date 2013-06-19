@@ -4,17 +4,12 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.lang.reflect.Method;
 
-import org.hamcrest.CoreMatchers;
 import org.json.JSONException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.jayway.jsonassert.JsonAssert;
 import com.jayway.jsonassert.JsonAsserter;
-
-
 
 public class DefultJsonClientMarshalerTest {
 
@@ -22,6 +17,8 @@ public class DefultJsonClientMarshalerTest {
     private Method method;
     private Object[] args;
     private DefultJsonClientMarshaler defultJsonClientMarshaler;
+    private static final String SESSION_ID = "SessionID";
+    
     
     @Before
     public void setUp() {
@@ -34,9 +31,21 @@ public class DefultJsonClientMarshalerTest {
         whenMarshalRequest();
         thenClientRequestHasJsonRpcMessage();
     }
+    
+    @Test
+    public void marshalSessionId() throws SecurityException, NoSuchMethodException {
+        givenMethodNameAndArguments();
+        whenMarshalRequest();
+        thenClientRequestHasSessionId();
+    }
+
+    private void thenClientRequestHasSessionId() {
+        JsonAsserter json = JsonAssert.with(result.getMessage());
+        json.assertThat("$.SId", equalTo(SESSION_ID));
+    }
 
     private void whenMarshalRequest() {
-        result = defultJsonClientMarshaler.marshalClientRequest(method, args);
+        result = defultJsonClientMarshaler.marshalClientRequest(SESSION_ID, method, args);
     }
 
     private void givenMethodNameAndArguments() throws SecurityException, NoSuchMethodException {
@@ -45,9 +54,8 @@ public class DefultJsonClientMarshalerTest {
     }
 
     private void thenClientRequestHasJsonRpcMessage() throws JSONException {
-        System.out.println(result.getMessage());
-        JsonAsserter jsonAsserter = JsonAssert.with(result.getMessage());
-        jsonAsserter.assertThat("$.Req.method", equalTo("createNewIdea"));
-        jsonAsserter.assertThat("$.Req.params.name", equalTo("foo"));
+        JsonAsserter json = JsonAssert.with(result.getMessage());
+        json.assertThat("$.Req.method", equalTo("createNewIdea"));
+        json.assertThat("$.Req.params.name", equalTo("foo"));
     }
 }

@@ -1,6 +1,5 @@
 package com.makethings.communication.session.user;
 
-import com.makethings.communication.queue.QueueServiceCredentials;
 import com.makethings.communication.session.AbstractApplicationSession;
 
 public class DefaultUserSession extends AbstractApplicationSession implements UserSession {

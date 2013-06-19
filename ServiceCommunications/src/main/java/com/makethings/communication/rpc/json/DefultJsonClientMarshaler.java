@@ -14,18 +14,16 @@ import com.googlecode.jsonrpc4j.ReflectionUtil;
 public class DefultJsonClientMarshaler implements JsonClientMarshaler {
 
     private JsonRpcClient jsonRpcClient;
-    
+
     public DefultJsonClientMarshaler() {
         jsonRpcClient = new JsonRpcClient();
     }
 
-
     @Override
-    public JsonClientRequest marshalClientRequest(Method method, Object... args) {
+    public JsonClientRequest marshalClientRequest(String clientSessionId, Method method, Object... args) {
         ObjectNode requestNode = JsonNodeFactory.instance.objectNode();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Object arguments = ReflectionUtil.parseArguments(method, args,
-                true);
+        Object arguments = ReflectionUtil.parseArguments(method, args, true);
         try {
             jsonRpcClient.writeRequest(method.getName(), arguments, outputStream, "10");
         }
@@ -33,7 +31,7 @@ public class DefultJsonClientMarshaler implements JsonClientMarshaler {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        //requestNode.put("SId", session.getId());
+        requestNode.put("SId", clientSessionId);
         ObjectMapper mapper = new ObjectMapper();
         try {
             requestNode.put("Req", mapper.readTree(outputStream.toByteArray()));
