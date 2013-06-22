@@ -1,16 +1,16 @@
 package com.makethings.communication.rpc.json;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.googlecode.jsonrpc4j.JsonRpcClient;
 import com.googlecode.jsonrpc4j.ReflectionUtil;
+import com.makethings.communication.rpc.ClientServiceException;
 
 public class DefultJsonClientMarshaler implements JsonClientMarshaler {
 
@@ -23,29 +23,31 @@ public class DefultJsonClientMarshaler implements JsonClientMarshaler {
     @Override
     public JsonClientRequest marshalClientRequest(String clientSessionId, Method method, Object... args) {
         ObjectNode requestNode = JsonNodeFactory.instance.objectNode();
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Object arguments = ReflectionUtil.parseArguments(method, args, true);
+        
+        populateSessionId(requestNode, clientSessionId);
+        
         UUID requestId = UUID.randomUUID();
-        try {
-            jsonRpcClient.writeRequest(method.getName(), arguments, outputStream, requestId.toString());
-        }
-        catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        populateRpcRequest(requestId, requestNode, method, args);
+        
+        return new JsonClientRequest(requestNode.toString(), requestId.toString());
+    }
+
+    private void populateSessionId(ObjectNode requestNode, String clientSessionId) {
         requestNode.put("SId", clientSessionId);
-        ObjectMapper mapper = new ObjectMapper();
+    }
+
+    private void populateRpcRequest(UUID requestId, ObjectNode requestNode, Method method, Object... args) {
         try {
-            requestNode.put("Req", mapper.readTree(outputStream.toByteArray()));
+            Object arguments = ReflectionUtil.parseArguments(method, args, true);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            jsonRpcClient.writeRequest(method.getName(), arguments, outputStream, requestId.toString());
+            JsonNode jsonRpcRequest = new ObjectMapper().readTree(outputStream.toByteArray());
+            
+            requestNode.put("Req", jsonRpcRequest);
         }
-        catch (JsonProcessingException e) {
-            e.printStackTrace();
+        catch (Exception e) {
+            throw new ClientServiceException("Cannot write json rpc request for method: " + method + " and args: " + args);
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        JsonClientRequest result = new JsonClientRequest(requestNode.toString(), requestId.toString());
-        return result;
     }
 
 }
