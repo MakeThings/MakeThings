@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.makethings.communication.rpc.ClientManager;
 import com.makethings.communication.rpc.json.JsonClientMarshaler;
@@ -29,7 +30,7 @@ public class SqsRemoteServiceClientTest {
 
     private static final String REMOTE_SERVICE_NAME = "SomeRemoteService";
     private static final String REQUEST_QUEUE_NAME = "RemoteServiceQueue";
-    private static final String CLIENT_REQUEST_QUEUE_NAME = "ClientRequestQueueName";
+    private static final String CLIENT_RESPONSE_QUEUE_NAME = "ClientResponseQueueName";
     private static final String CLIENT_SESSION_ID = "ClientSessionId";
     private static final String REQUEST_ID = "RequestId";
     private DefaultUserSessionDefinition sessionDefinition;
@@ -101,6 +102,20 @@ public class SqsRemoteServiceClientTest {
 
         thenRequstIsSent();
     }
+    
+    @Test
+    public void sendsRequestToReceiveResponse() throws SecurityException, NoSuchMethodException {
+        givenInitedClient();
+
+        whenInvoke();
+        
+        thenResponseIsRead();
+    }
+
+    private void thenResponseIsRead() {
+        verify(queue).receiveMessage(Mockito.eq(new ReceiveMessageRequest(CLIENT_RESPONSE_QUEUE_NAME)));
+        
+    }
 
     private void thenRequstIsSent() {
         verify(queue).sendMessage(Mockito.eq(new SendMessageRequest().withQueueUrl(REQUEST_QUEUE_NAME).withMessageBody("foo")));
@@ -116,7 +131,7 @@ public class SqsRemoteServiceClientTest {
     }
 
     private void thenClientRequestQueueNameIsCreated() {
-        verify(queue).createQueue(new CreateQueueRequest().withQueueName(CLIENT_REQUEST_QUEUE_NAME));
+        verify(queue).createQueue(new CreateQueueRequest().withQueueName(CLIENT_RESPONSE_QUEUE_NAME));
     }
 
     private void thenRequestQueueNameIsDerived() {
@@ -148,7 +163,7 @@ public class SqsRemoteServiceClientTest {
 
     private void givenUserSession() {
         when(clientManager.openClientSession(Mockito.same(sessionDefinition))).thenReturn(userSession);
-        when(userSession.getResponseQueueName()).thenReturn(CLIENT_REQUEST_QUEUE_NAME);
+        when(userSession.getResponseQueueName()).thenReturn(CLIENT_RESPONSE_QUEUE_NAME);
         when(userSession.getId()).thenReturn(CLIENT_SESSION_ID);
     }
 }

@@ -6,12 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
-import com.amazonaws.services.sqs.model.SendMessageRequest;
-import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.makethings.communication.rpc.ClientManager;
 import com.makethings.communication.rpc.RemoteServiceClient;
 import com.makethings.communication.rpc.json.JsonClientMarshaler;
 import com.makethings.communication.rpc.json.JsonClientRequest;
+import com.makethings.communication.rpc.json.JsonClientResponse;
 import com.makethings.communication.session.user.UserSession;
 import com.makethings.communication.session.user.UserSessionDefinition;
 
@@ -27,6 +26,10 @@ public class SqsRemoteServiceClient implements RemoteServiceClient {
     private SqsQueue queue;
     private JsonClientMarshaler jsonClientMarshaler;
 
+    private SqsRpcRequestSender sqsRpcRequestSender;
+    private SqsRpcResponseReceiver sqsRpcResponseReceiver;
+
+
     public void init() {
         LOG.info("Initialising Remote Service Client");
         session = clientManager.openClientSession(sessionDefinition);
@@ -34,12 +37,14 @@ public class SqsRemoteServiceClient implements RemoteServiceClient {
         requestQueueName = clientManager.getServiceRequestQueueName(remoteServiceName);
         queue.createQueue(new CreateQueueRequest(session.getResponseQueueName()));
         LOG.info("Remote Service Client for session: {} is created", session.getId());
+        sqsRpcRequestSender = new SqsRpcRequestSender(requestQueueName, queue);
+        sqsRpcResponseReceiver = new SqsRpcResponseReceiver(session.getResponseQueueName(), queue);
     }
 
     public void invoke(Method declaredMethod, Object... args) {
         JsonClientRequest request = jsonClientMarshaler.marshalClientRequest(session.getId(), declaredMethod, args);
-        SendMessageResult sendMessageResult = queue.sendMessage(new SendMessageRequest(requestQueueName, request.getMessage()));
-
+        sqsRpcRequestSender.send(request);
+        JsonClientResponse response = sqsRpcResponseReceiver.receiveResponseFor(request);
     }
 
     public void setClientManaget(ClientManager clientManager) {

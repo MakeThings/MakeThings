@@ -1,6 +1,5 @@
 package com.makethings.communication.rpc.json;
 
-
 public class JsonClientRequest {
 
     private final String message;
@@ -18,5 +17,5 @@ public class JsonClientRequest {
     public String getRequestId() {
         return requestId;
     }
-    
+
 }
