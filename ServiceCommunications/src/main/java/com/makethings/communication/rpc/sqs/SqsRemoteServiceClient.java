@@ -34,8 +34,9 @@ public class SqsRemoteServiceClient extends AbstractRemoteServiceClient {
         JsonClientRequest request = jsonClientMarshaler.marshalClientRequest(session.getId(), declaredMethod, args);
         sqsRpcRequestSender.send(request);
         JsonClientResponse response = sqsRpcResponseReceiver.receiveResponseFor(request);
-        
-        return null;
+        Object result = jsonClientMarshaler.demarshalClientResponse(response);
+        LOG.debug("Demarshaled response: {} is {}", response, result);
+        return result;
     }
 
     public void setQueue(SqsQueue queue) {

@@ -21,6 +21,12 @@ public class DefultJsonClientMarshaler implements JsonClientMarshaler {
     }
 
     @Override
+    public Object demarshalClientResponse(JsonClientResponse response) {
+        return null;
+    }
+
+    
+    @Override
     public JsonClientRequest marshalClientRequest(String clientSessionId, Method method, Object... args) {
         ObjectNode requestNode = JsonNodeFactory.instance.objectNode();
         
@@ -50,4 +56,5 @@ public class DefultJsonClientMarshaler implements JsonClientMarshaler {
         }
     }
 
+  
 }

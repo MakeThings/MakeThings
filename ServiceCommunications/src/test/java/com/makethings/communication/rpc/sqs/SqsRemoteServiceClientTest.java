@@ -8,9 +8,11 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.Method;
 
 import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -21,6 +23,7 @@ import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.makethings.communication.rpc.ClientManager;
 import com.makethings.communication.rpc.json.JsonClientMarshaler;
 import com.makethings.communication.rpc.json.JsonClientRequest;
+import com.makethings.communication.rpc.json.JsonClientResponse;
 import com.makethings.communication.rpc.json.TestIdeaService;
 import com.makethings.communication.session.user.DefaultUserSessionDefinition;
 import com.makethings.communication.session.user.UserSession;
@@ -47,6 +50,12 @@ public class SqsRemoteServiceClientTest {
 
     @Mock
     private JsonClientMarshaler clientMarshaler;
+    
+    @Mock
+    private SqsRpcResponseReceiver receiver;
+    private JsonClientRequest jsonRequest;
+    private Object invokeResult;
+    private JsonClientResponse jsonResponse;
 
     @Before
     public void setUp() throws SecurityException, NoSuchMethodException {
@@ -56,11 +65,19 @@ public class SqsRemoteServiceClientTest {
         serviceClient.setJsonClientMarshaler(clientMarshaler);
         givenClientManager();
         givenJsonMarchaler();
+        givenReceiver();
+    }
+
+    private void givenReceiver() {
+        jsonResponse = new JsonClientResponse();
+        when(receiver.receiveResponseFor(Matchers.eq(jsonRequest))).thenReturn(jsonResponse);
+        when(clientMarshaler.demarshalClientResponse(Mockito.same(jsonResponse))).thenReturn(Integer.valueOf(100));
     }
 
     private void givenJsonMarchaler() throws SecurityException, NoSuchMethodException {
         Method serviceMethod = TestIdeaService.class.getDeclaredMethod("createNewIdea", String.class);
-        when(clientMarshaler.marshalClientRequest(CLIENT_SESSION_ID, serviceMethod, "foo")).thenReturn(new JsonClientRequest("foo", REQUEST_ID));
+        jsonRequest = new JsonClientRequest("foo", REQUEST_ID);
+        when(clientMarshaler.marshalClientRequest(CLIENT_SESSION_ID, serviceMethod, "foo")).thenReturn(jsonRequest);
     }
 
     private void givenClientManager() {
@@ -111,10 +128,22 @@ public class SqsRemoteServiceClientTest {
         
         thenResponseIsRead();
     }
+    
+    @Test
+    public void receivedResponseDeserialisedIntoResult() throws SecurityException, NoSuchMethodException {
+        givenInitedClient();
+
+        whenInvoke();
+
+        thenResultIs100();
+    }
+
+    private void thenResultIs100() {
+        Assert.assertThat((Integer)invokeResult, CoreMatchers.is(100));
+    }
 
     private void thenResponseIsRead() {
-        verify(queue).receiveMessage(Mockito.eq(new ReceiveMessageRequest(CLIENT_RESPONSE_QUEUE_NAME)));
-        
+        verify(receiver).receiveResponseFor(Mockito.same(jsonRequest));
     }
 
     private void thenRequstIsSent() {
@@ -122,12 +151,13 @@ public class SqsRemoteServiceClientTest {
     }
 
     private void whenInvoke() throws SecurityException, NoSuchMethodException {
-        serviceClient.invoke(TestIdeaService.class.getDeclaredMethod("createNewIdea", String.class), "foo");
+        invokeResult = serviceClient.invoke(TestIdeaService.class.getDeclaredMethod("createNewIdea", String.class), "foo");
     }
 
     private void givenInitedClient() {
         givenUserSessionDefinition();
         serviceClient.init();
+        serviceClient.setSqsRpcResponseReceiver(receiver);
     }
 
     private void thenClientRequestQueueNameIsCreated() {
