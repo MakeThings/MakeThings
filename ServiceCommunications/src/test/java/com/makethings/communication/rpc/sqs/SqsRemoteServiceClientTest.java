@@ -76,7 +76,7 @@ public class SqsRemoteServiceClientTest {
 
     private void givenJsonMarchaler() throws SecurityException, NoSuchMethodException {
         Method serviceMethod = TestIdeaService.class.getDeclaredMethod("createNewIdea", String.class);
-        jsonRequest = new JsonClientRequest("foo", REQUEST_ID);
+        jsonRequest = new JsonClientRequest(serviceMethod, "foo", REQUEST_ID);
         when(clientMarshaler.marshalClientRequest(CLIENT_SESSION_ID, serviceMethod, "foo")).thenReturn(jsonRequest);
     }
 

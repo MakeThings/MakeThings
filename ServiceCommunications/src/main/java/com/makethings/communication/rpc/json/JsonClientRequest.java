@@ -6,11 +6,10 @@ public class JsonClientRequest {
 
     private final String message;
     private final String requestId;
-    
-    // TODO: add population
-    private Method method;
+    private final Method method;
 
-    public JsonClientRequest(String message, String requestId) {
+    public JsonClientRequest(Method method, String message, String requestId) {
+        this.method = method;
         this.message = message;
         this.requestId = requestId;
     }
@@ -23,4 +22,7 @@ public class JsonClientRequest {
         return requestId;
     }
 
+    public Method getMethod() {
+        return method;
+    }
 }

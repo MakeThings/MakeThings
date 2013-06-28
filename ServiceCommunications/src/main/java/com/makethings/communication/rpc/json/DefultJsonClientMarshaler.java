@@ -35,7 +35,7 @@ public class DefultJsonClientMarshaler implements JsonClientMarshaler {
         UUID requestId = UUID.randomUUID();
         populateRpcRequest(requestId, requestNode, method, args);
         
-        return new JsonClientRequest(requestNode.toString(), requestId.toString());
+        return new JsonClientRequest(method, requestNode.toString(), requestId.toString());
     }
 
     private void populateSessionId(ObjectNode requestNode, String clientSessionId) {

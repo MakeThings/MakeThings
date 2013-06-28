@@ -4,7 +4,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.lang.reflect.Method;
 
+import org.hamcrest.CoreMatchers;
 import org.json.JSONException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,6 +46,17 @@ public class DefultJsonClientMarshalerTest {
         givenMethodNameAndArguments();
         whenMarshalRequest();
         thenClientRequestHasId();
+    }
+    
+    @Test
+    public void populateInvokedMethodIntoRequestObject() throws SecurityException, NoSuchMethodException {
+        givenMethodNameAndArguments();
+        whenMarshalRequest();
+        thenMethodPopulatedToRequestObject();
+    }
+
+    private void thenMethodPopulatedToRequestObject() {
+        Assert.assertThat(method, CoreMatchers.is(result.getMethod()));
     }
 
     private void thenClientRequestHasId() {
