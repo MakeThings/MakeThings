@@ -35,7 +35,8 @@ public class SqsRemoteServiceClientTest {
     private static final String REQUEST_QUEUE_NAME = "RemoteServiceQueue";
     private static final String CLIENT_RESPONSE_QUEUE_NAME = "ClientResponseQueueName";
     private static final String CLIENT_SESSION_ID = "ClientSessionId";
-    private static final String REQUEST_ID = "RequestId";
+    private static final String REQUEST_ID = "12345";
+    private static final String RESPONSE_ID = "12345";
     private DefaultUserSessionDefinition sessionDefinition;
     private SqsRemoteServiceClient serviceClient;
 
@@ -55,6 +56,7 @@ public class SqsRemoteServiceClientTest {
     private SqsRpcResponseReceiver receiver;
     private JsonClientRequest jsonRequest;
     private Object invokeResult;
+    @Mock
     private JsonClientResponse jsonResponse;
 
     @Before
@@ -69,7 +71,6 @@ public class SqsRemoteServiceClientTest {
     }
 
     private void givenReceiver() {
-        jsonResponse = new JsonClientResponse();
         when(receiver.receiveResponseFor(Matchers.eq(jsonRequest))).thenReturn(jsonResponse);
         when(clientMarshaler.demarshalClientResponse(Mockito.same(jsonResponse))).thenReturn(Integer.valueOf(100));
     }
