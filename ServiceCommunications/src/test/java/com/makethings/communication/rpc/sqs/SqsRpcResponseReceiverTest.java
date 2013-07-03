@@ -61,6 +61,20 @@ public class SqsRpcResponseReceiverTest {
         thenReponseHasResponseId();
     }
     
+    @Test
+    public void receivedReponseHasRpcJsonMessage() {
+        givenRequest();
+        givenResponseMessages();
+        
+        whenReceiveResponse();
+        
+        thenResponseHasAmessage();
+    }
+    
+    private void thenResponseHasAmessage() {
+        Assert.assertThat(response.getJsonRpcResponse(), Matchers.is("{\"jsonrpc\":\"2.0\",\"id\":\"" + A_REQUEST_ID + "\",\"result\":200}"));
+    }
+
     private void thenReponseHasResponseId() {
         Assert.assertThat(response.getReponseId(), Matchers.is(A_REQUEST_ID));
     }
@@ -72,12 +86,12 @@ public class SqsRpcResponseReceiverTest {
     }
 
     private Message messageWithOtherResponseId() {
-        String response = "{\"Res\":{\"jsonrpc\":\"2.0\",\"id\":\"" + A_REQUEST_ID + "\",\"result\":200}}";
+        String response = FileHelper.readFromFilename("/json/createIdeaServiceResponse.txt");
         return new Message().withBody(response);
     }
 
     private Message messageWithExpectedResponseId() {
-        String response = FileHelper.readFromFilename("/json/createIdeaServiceResponse.txt");
+        String response = "{\"Res\":{\"jsonrpc\":\"2.0\",\"id\":\"" + A_REQUEST_ID + "\",\"result\":200}}";
         return new Message().withBody(response);
     }
 

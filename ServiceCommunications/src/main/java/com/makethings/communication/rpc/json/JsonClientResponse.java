@@ -3,16 +3,17 @@ package com.makethings.communication.rpc.json;
 import java.lang.reflect.Method;
 
 public class JsonClientResponse {
-    String receivedMessage;
+    String jsonRpcResponse;
     Method invokedMethod;
     String reponseId;
 
     public JsonClientResponse(ClientResponseMessageWrapper messageWrapper) {
         reponseId = messageWrapper.getResponseId();
+        jsonRpcResponse = messageWrapper.getJsonRpc();
     }
 
-    public String getReceivedMessage() {
-        return receivedMessage;
+    public String getJsonRpcResponse() {
+        return jsonRpcResponse;
     }
 
     public Method getInvokedMethod() {

@@ -35,4 +35,8 @@ public class ClientResponseMessageWrapper {
     public String getResponseId() {
         return json.get("Res").get("id").asText();
     }
+
+    public String getJsonRpc() {
+        return json.get("Res").toString();
+    }
 }
