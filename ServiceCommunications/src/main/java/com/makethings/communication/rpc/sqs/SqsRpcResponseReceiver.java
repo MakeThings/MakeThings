@@ -24,7 +24,7 @@ public class SqsRpcResponseReceiver {
         for (Message m : receiveMsgResult.getMessages()) {
             ClientResponseMessageWrapper messageWrapper = new ClientResponseMessageWrapper(m.getBody());
             if (messageWrapper.responseOnRequest(jsonClientRequest.getRequestId())) {
-                result = new JsonClientResponse(messageWrapper);
+                result = new JsonClientResponse(messageWrapper, jsonClientRequest.getMethod());
             }
         }
 

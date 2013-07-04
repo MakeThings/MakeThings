@@ -1,8 +1,10 @@
 package com.makethings.communication.rpc.sqs;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.lang.reflect.Method;
 
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,12 +73,26 @@ public class SqsRpcResponseReceiverTest {
         thenResponseHasAmessage();
     }
     
+    @Test
+    public void receivedReponseHasInvokedMethod() {
+        givenRequest();
+        givenResponseMessages();
+        
+        whenReceiveResponse();
+        
+        thenResponseHasAmethod();
+    }
+    
+    private void thenResponseHasAmethod() {
+        assertThat(response.getInvokedMethod(), is(CREATE_NEW_IDEA_METHOD));
+    }
+
     private void thenResponseHasAmessage() {
-        Assert.assertThat(response.getJsonRpcResponse(), Matchers.is("{\"jsonrpc\":\"2.0\",\"id\":\"" + A_REQUEST_ID + "\",\"result\":200}"));
+        assertThat(response.getJsonRpcResponse(), is("{\"jsonrpc\":\"2.0\",\"id\":\"" + A_REQUEST_ID + "\",\"result\":200}"));
     }
 
     private void thenReponseHasResponseId() {
-        Assert.assertThat(response.getReponseId(), Matchers.is(A_REQUEST_ID));
+        assertThat(response.getReponseId(), is(A_REQUEST_ID));
     }
 
     private void givenResponseMessages() {
