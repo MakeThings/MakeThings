@@ -25,4 +25,9 @@ public class JsonClientRequest {
     public Method getMethod() {
         return method;
     }
+
+    @Override
+    public String toString() {
+        return "JsonClientRequest [requestId=" + requestId + ", method=" + method + "]";
+    }
 }
