@@ -6,10 +6,11 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-import com.makethings.communication.rpc.RemoteServiceClientException;
+import com.makethings.communication.rpc.ClientServiceException;
 import com.makethings.communication.rpc.json.ClientResponseMessageWrapper;
 import com.makethings.communication.rpc.json.JsonClientRequest;
 import com.makethings.communication.rpc.json.JsonClientResponse;
+import com.makethings.communication.rpc.json.JsonClientServiceException;
 
 public class SqsRpcResponseReceiver {
 
@@ -26,27 +27,39 @@ public class SqsRpcResponseReceiver {
         this.queue = queue;
     }
 
-    public JsonClientResponse receiveResponseFor(JsonClientRequest jsonClientRequest) throws RemoteServiceClientException {
-    	LOG.debug("Receiving reponse for {}", jsonClientRequest);
+    public JsonClientResponse receiveResponseFor(JsonClientRequest jsonClientRequest) throws ClientServiceException {
+    	LOG.debug("Receiving response for {}", jsonClientRequest);
     	
     	JsonClientResponse result = null;
         ReceiveMessageRequest receiveMsgRequest = new ReceiveMessageRequest(responseQueueName);
         long started = System.currentTimeMillis();
+        
         while (result == null && !untilTimeout(started)) {
             ReceiveMessageResult receiveMsgResult = queue.receiveMessage(receiveMsgRequest);
-            for (Message m : receiveMsgResult.getMessages()) {
+            result = extractReponse(jsonClientRequest, receiveMsgResult);
+        }
+        
+        if (result == null) {
+            LOG.warn("Response wait timeout for request: {}", jsonClientRequest);
+            throw new ClientServiceException("Response wait timeout for request id: " + jsonClientRequest.getRequestId());
+        }
+
+        return result;
+    }
+
+    private JsonClientResponse extractReponse(JsonClientRequest jsonClientRequest, ReceiveMessageResult receiveMsgResult) {
+        JsonClientResponse result = null;
+        for (Message m : receiveMsgResult.getMessages()) {
+            try {
                 ClientResponseMessageWrapper messageWrapper = new ClientResponseMessageWrapper(m.getBody());
                 if (messageWrapper.responseOnRequest(jsonClientRequest.getRequestId())) {
                     result = new JsonClientResponse(messageWrapper, jsonClientRequest.getMethod());
                 }
             }
+            catch (JsonClientServiceException e) {
+                LOG.warn("Message has wrong json format, will be ignored", e);
+            }
         }
-        
-        if (result == null) {
-            LOG.warn("Response wait timeout for request: {}", jsonClientRequest);
-            throw new RemoteServiceClientException("Response wait timeout for request id: " + jsonClientRequest.getRequestId());
-        }
-
         return result;
     }
 

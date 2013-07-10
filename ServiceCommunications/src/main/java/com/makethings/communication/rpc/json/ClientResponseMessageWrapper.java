@@ -10,7 +10,7 @@ public class ClientResponseMessageWrapper {
     private final String serviceResponseMessage;
     private JsonNode json;
 
-    public ClientResponseMessageWrapper(String serviceResponseMessage) {
+    public ClientResponseMessageWrapper(String serviceResponseMessage) throws JsonClientServiceException {
         this.serviceResponseMessage = serviceResponseMessage;
         parse();
     }
@@ -21,10 +21,10 @@ public class ClientResponseMessageWrapper {
             json = mapper.readTree(serviceResponseMessage);
         }
         catch (JsonProcessingException e) {
-            e.printStackTrace();
+            throw new JsonClientServiceException("Incoming message: " + serviceResponseMessage + " cannot be parsed.", e);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            throw new JsonClientServiceException("Incoming message: " + serviceResponseMessage + " cannot be parsed.", e);
         }
     }
 

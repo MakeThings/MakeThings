@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
 
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,7 +22,7 @@ import org.mockito.stubbing.Answer;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-import com.makethings.communication.rpc.RemoteServiceClientException;
+import com.makethings.communication.rpc.ClientServiceException;
 import com.makethings.communication.rpc.json.JsonClientRequest;
 import com.makethings.communication.rpc.json.JsonClientResponse;
 import com.makethings.communication.rpc.json.TestIdeaService;
@@ -102,9 +103,33 @@ public class SqsRpcResponseReceiverTest {
 
 		whenReceiveResponse();
 	}
+	
+	@Test
+	public void whenIncommingMessageCannotBeParsedItIsIgnored() {
+	    givenRequest();
+	    givenResponseWithBadMessage();
+	    
+	    whenReceiveResponse();
+	    
+	    thenReceivedCorrentMessage();
+	}
 
-	private void expectExceptionThrown() {
-		expectedException.expect(RemoteServiceClientException.class);
+	private void thenReceivedCorrentMessage() {
+	    assertThat(response.getReponseId(), Matchers.is(A_REQUEST_ID));
+    }
+
+    private void givenResponseWithBadMessage() {
+        ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(A_RESPONSE_QUEUE_NAME);
+        ReceiveMessageResult receivedMessages = new ReceiveMessageResult().withMessages(badMessage(), messageWithExpectedResponseId());
+        when(queue.receiveMessage(Mockito.eq(receiveMessageRequest))).thenReturn(receivedMessages);
+    }
+
+    private Message badMessage() {
+        return new Message().withBody("Bad!!!");
+    }
+
+    private void expectExceptionThrown() {
+		expectedException.expect(ClientServiceException.class);
 	}
 
 	private void givenDelay() {
