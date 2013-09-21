@@ -28,7 +28,7 @@ public class ClientResponseMessageWrapper {
         }
     }
 
-    public boolean responseOnRequest(String requestId) {
+    public boolean isResponseOnRequest(String requestId) {
         return getResponseId().equals(requestId);
     }
     

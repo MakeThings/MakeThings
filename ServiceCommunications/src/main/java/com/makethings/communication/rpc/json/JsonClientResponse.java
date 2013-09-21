@@ -16,9 +16,18 @@ public class JsonClientResponse {
     public String getJsonRpcResponse() {
         return jsonRpcResponse;
     }
+    
+    public byte[] getJsonRpcResponseAsByteArray() {
+        return getJsonRpcResponse().getBytes();
+    }
+    
 
     public Method getInvokedMethod() {
         return invokedMethod;
+    }
+    
+    public Class<?> getServiceMethodResultType() {
+        return getInvokedMethod().getReturnType();
     }
 
     public String getReponseId() {
