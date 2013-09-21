@@ -14,10 +14,13 @@ import org.hamcrest.CoreMatchers;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.jayway.jsonassert.JsonAssert;
 import com.jayway.jsonassert.JsonAsserter;
+import com.makethings.communication.rpc.ClientServiceException;
 
 public class DefultJsonClientMarshalerTest {
 
@@ -28,6 +31,9 @@ public class DefultJsonClientMarshalerTest {
     private JsonClientResponse jsonResponse;
     private static final String SESSION_ID = "SessionID";
     private Object serviceMethodResult;
+    
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
     
     @Before
     public void setUp() throws NoSuchMethodException, SecurityException {
@@ -72,6 +78,27 @@ public class DefultJsonClientMarshalerTest {
         thenServiceMethodCallResultIs(100);
     }
     
+    @Test
+    public void exceptionThrownWhenBadResponse() throws IOException {
+        expectException();
+        
+        givenBadResponse();
+        
+        whenDemarshal();
+    }
+    
+    private void givenBadResponse() throws IOException {
+        String serivceResponseFilePath = DefultJsonClientMarshalerTest.class.getResource("/json/createIdeaBadServiceResponse.txt").getPath();
+        File serviceResponseFile = new File(serivceResponseFilePath);
+        String serviceResponseMessage = FileUtils.readFileToString(serviceResponseFile);
+        ClientResponseMessageWrapper serviceResponseWrapper = new ClientResponseMessageWrapper(serviceResponseMessage);
+        jsonResponse = new JsonClientResponse(serviceResponseWrapper, method);
+    }
+
+    private void expectException() {
+        exception.expect(ClientServiceException.class);
+    }
+
     private void thenServiceMethodCallResultIs(Integer expectedResult) {
         assertThat(serviceMethodResult, instanceOf(Integer.class));
         assertThat((Integer)serviceMethodResult, CoreMatchers.is(expectedResult));

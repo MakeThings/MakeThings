@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.googlecode.jsonrpc4j.JsonRpcClient;
 import com.googlecode.jsonrpc4j.ReflectionUtil;
 import com.makethings.communication.rpc.ClientServiceException;
-import com.makethings.communication.rpc.sqs.RequestHandlingTask;
 
 public class DefultJsonClientMarshaler implements JsonClientMarshaler {
 
@@ -41,14 +40,16 @@ public class DefultJsonClientMarshaler implements JsonClientMarshaler {
             LOG.info("Demarshalled result: {} by reponse: {}", result, response.getJsonRpcResponse());
         }
         catch (Throwable e) {
-            // TODO: add exception handling
-            e.printStackTrace();
+            throw new ClientServiceException("Cannot demarshal response", e);
         }
         return result;
     }
 
     @Override
-    public JsonClientRequest marshalClientRequest(String clientSessionId, Method method, Object... args) {
+    public JsonClientRequest marshalClientRequest(String clientSessionId, Method method, Object... args) throws ClientServiceException {
+        LOG.info("Marshaling request for method: {} with args: {}", method.getName(), args);
+        
+        
         ObjectNode requestNode = JsonNodeFactory.instance.objectNode();
 
         populateSessionId(requestNode, clientSessionId);
@@ -63,7 +64,7 @@ public class DefultJsonClientMarshaler implements JsonClientMarshaler {
         requestNode.put("SId", clientSessionId);
     }
 
-    private void populateRpcRequest(UUID requestId, ObjectNode requestNode, Method method, Object... args) {
+    private void populateRpcRequest(UUID requestId, ObjectNode requestNode, Method method, Object... args) throws ClientServiceException {
         try {
             Object arguments = ReflectionUtil.parseArguments(method, args, true);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
